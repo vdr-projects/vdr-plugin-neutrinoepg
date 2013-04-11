@@ -1,0 +1,84 @@
+Edited by:                   - Christian Jacobsen (cjac AT ich - habe - fertig DOT com)
+                               viking @vdr-portal.de
+                             - Andreas Mair (andreas AT vdr - developer DOT org)
+														   amair @vdr-portal.de
+
+Project's homepage:          http://andreas.vdr-developer.org/fonts
+
+Latest version available at: http://andreas.vdr-developer.org/fonts
+
+
+License / Copying
+-----------------
+
+See COPYRIGHT.txt
+
+
+Description
+-----------
+
+This is a TrueType font based on the DejaVu font.
+It contains symbols that are used by VDR plugins and patches.
+
+NOTE:
+The symbols are only accessible if the plugins/patches access them
+using UTF8 in VDR or if they use the new locations (like ExtRecMenu v1.2+
+and NordlichtsEPG v0.9+).
+
+
+Installation
+------------
+
+To use the fonts you have to extract the archive in your
+VDR's plugins configuration directory:
+
+> cd /path/to/truetype-fonts
+> tar xzf vdrsymbols-ttf-20100612.tgz
+
+This will create a new directory "vdrsymbols".
+Then .ttf files have to be copied to a folder where FontConfig can access them,
+for example /usr/share/fonts/truetype.
+
+
+Included Symbols
+----------------
+
+These symbols are included in the font. The first column is the code to
+access them using unicode, the second column is for non-unicode.
+
+0xE000 0x80 Arrow (resume.vdr exists)
+0xE001 0x81 DVD
+0xE002 0x82 Folder
+0xE003 0x83 Fixed width blank
+0xE004 0x84 Cut
+0xE005 0x85 Move file
+0xE006 0x86 Move folder
+0xE007 0x87 Progressbar start [
+0xE008 0x88 Progressbar filled
+0xE009 0x89 Progressbar clear
+0xE00A 0x8A Progressbar end ]
+0xE00B 0x8B REC
+0xE00C 0x8C Watch (Timer)
+0xE00D 0x8D TV crypted
+0xE00E 0x8E Radio
+0xE00F 0x8F TV
+0xE010 0x90 Star (New)
+0xE011 0x91 Arrow (Repeating timer)
+0xE012 0x92 Running
+0xE013 0x93 VPS
+0xE014 0x94 Watch (upper half)
+0xE015 0x95 Watch (lower half)
+0xE016 0x96 Checkbox (unchecked) (Music plugin)
+0xE017 0x97 Checkbox (checked) (Music plugin)
+0xE018 0x98 Star (Music, ExtRecMenu plugins)
+0xE019 0x99 Half star (Music, ExtRecMenu plugins)
+0xE01A 0x9A Bomb (Music plugin)
+0xE01B 0x9B Notes (Music plugin)
+0xE01C 0x9C HDD archive (ExtRecMenu plugin)
+
+
+Credits
+-------
+
+- DejaVu team
+	http://dejavu.sourceforge.net

@@ -1,0 +1,44 @@
+'EnigmaNG' Fonts - Revision History
+-----------------------------------
+
+2010-06-12:
+- Use DejaVu (http://dejavu.sourceforge.net/) v2.31 as base font.
+- Included symbol for HDD archive for ExtRecMenu plugin (Submitted by Carsten Siebholz).
+
+2008-09-05:
+- Included symbols for Music plugin (Submitted by Morone @vdr-portal.de).
+- Use DejaVu (http://dejavu.sourceforge.net/) v2.26 as base font.
+- Reworked insert_vdr_symbols.pe.
+
+2008-05-29:
+- Use DejaVu (http://dejavu.sourceforge.net/) v2.25 as base font.
+- Reworked insert_vdr_symbols.pe.
+
+2008-04-15:
+- Fixed truetype export.
+
+2008-04-10:
+- Reworked symbols "progressbar start" and "progressbar stop".
+- Added two half clocks (Requested by Christian Wieninger).
+
+2008-04-04:
+- Added VPS symbol (Submitted by zulu @vdr-portal.de).
+
+2008-04-01:
+- Added symbols starting at location 0x80 (Suggested by Martin Prochnow).
+- Updated insert_vdr_symbols.pe FontForge script.
+- Included reworked symbols "Folder" and "Move Folder" (Submitted by Martin Prochnow).
+
+2008-03-11:
+- Added insert_vdr_symbols.pe FontForge script. See script for details.
+- Added missing symbols.
+- Import symbols for VDR to fonts private area (starting at 0xE000).
+- Use DejaVu (http://dejavu.sourceforge.net/) v2.24 as base font.
+
+2008-02-25:
+- Changed internal fontname so that it can be used beside the original Bitstream font in VDR 1.5.x.
+
+2007-07-04:
+- Initial release (Submitted by Christian Jacobsen).
+- Symbols for ExtRecMenu plugin (Submitted by Christian Jacobsen).
+- Symbols for WarEagle patch (Submitted by Christian Jacobsen).

@@ -1,0 +1,229 @@
+This is a "plugin" for the Video Disk Recorder (VDR).
+
+Written by:         Martin Schirrmacher <vdr.neutrinoepg@schirrmacher.eu>
+
+Nordlicht's EPG Original Written by:
+                    Martin Prochnow <nordlicht@martins-kabuff.de>
+
+
+Project's homepage: http://projects.vdr-developer.org/projects/plg-neutrinoepg
+
+See the file COPYING for license information.
+
+Thanks to:
+- Martin Prochnow for Nordlicht's EPG
+  - Rolf Ahrenberg for the finnish translation.
+  - Andreas Mair for the font containing the icons
+
+
+Neutrinoepg
+Neutrinoepg ist eine übersichtliche EPG-Anzeige für den VDR.
+
+Es bietet eine Übersicht über die Sender und die laufende Sendung mit Sendungsfortschrittsanzeige (wie lange läuft die Sendung schon).
+Somit hat man einen schnellen Überblick was, wie lange, wo läuft.
+
+Weiterhin kann man mittels der Farbtasten Gelb/Grün die Zeit umschalten um zu sehen was früher oder später auf allen Sendern läuft.
+Zu einer Sendung kann die EPG-Info (Beschreibung der Sendung) angezeigt werden und für eine Sendung kann ein Timer erstellt werden.
+
+Ein zentraler Punkt des Plugins ist es, das die Kanäle in ihren Gruppen aufgeteilt sind und nur Kanäle einer Gruppe angezeigt werden.
+Dabei steht die Kanalgruppe in der Überschrift. Zwischen den Kanalgruppen kann mittels links/rechts oder prev/next (je nach Einstellung)
+gewechselt werden.
+Es wird sich die letzte Auswahl in jeder Gruppe gemerkt sodass schnell zwischen den Kanalgruppen und Kanälen gewechselt werden kann.
+
+Plugin-Einstellungen
+--- Verhalten ---
+- Sprungweite (min): wie viele Minuten soll bei den Farbtasten Gelb/Grün die Zeit vor oder zurück gesprungen werden (Format: mm).
+  Default: 30 (30 min)
+- Springe zu: Zeitstempel wohin mit der roten Farbtaste gesprungen werden kann (Format: hhmm).
+  Default: 2015 (20:15Uhr)
+- Mit Ok umschalten: Mit der OK-Taste umschalten oder die EPG-Info anzeigen.
+  Wenn Ja wird mit der OK-Taste der Kanal umgeschaltet, mit der Farbtaste blau kann die EPG-Info angezeigt werden.
+  Wenn Nein wird mit der OK-Taste die EPG-Info angezeigt, mit der Farbtaste blau kann der Kanal umgeschaltet werden.
+  Default: Ja
+- ausgewählten Menüeintrag mittig: Soll der ausgewählte Menüeintrag immer in der Mitte des Bildschirms sein?
+  Diese Einstellung hat Auswirkungen auf die Anzeige.
+  Wenn Aktiv gibt es keinen Scrollbalken auch wenn viele Einträge für eine Kanalgruppe vorhanden sind.
+  Des Weiteren ist es schwierig über mehrere Einträge mittels der hoch-/runter-Tasten zu scrollen in dem man die Taste gedrückt hält,
+  da die Anzeige erst aktualisiert wird wenn man die Taste loslässt.
+  Default: Nein
+- Gruppenwechsel-Taste: mit welchen Tasten soll zwischen den Kanalgruppen gewechselt werden.
+  Auswahl: "links/rechts" oder "prev/next".
+  Wenn links/rechts ausgewählt ist, kann mittels prev/next Seitenweise innerhalb der Liste geblättert werden.
+  Wenn prev/next ausgewählt ist kann mittels links/rects Seitenweise innerhalb der Liste geblättert werden.
+  Default: links/rechts
+
+--- Erscheinungsbild ----
+- Eintrag im Hauptmenü verstecken: Soll ein Eintrag "Neutrinoepg" im Hauptmenü angezeigt werden?
+  Default: Nein
+- Anzeige nach Umschalten beibehalten: Soll die Anzeige nach dem Umschalten nicht beendet werden?
+  Default: Nein
+- Kanalnummern anzeigen: Sollen in der ersten Spalte Kanalnummern angezeigt werden?
+  Default: Ja
+- Verschlüsselte Kanäle ausblenden: Sollen verschlüsselte Kanäle ausgeblendet werden?
+  Default: Nein
+- Radio-Kanäle ausblenden: Sollen Radio-Kanäle ausgeblendet werden?
+  Default: Nein
+- Fortschrittsanzeige als Prozent: Soll die Fortschrittsanzeige als Prozent angezeigt werden?
+  Wenn Ja werden Prozentzahlen angezeigt. Wenn Nein wird eine Balkengrafik angezeigt.
+  Für die Balkengrafik muss zwingend der Font "VDRSymbolsSans.ttf" installiert sein (siehe unten).
+  Default: Nein
+
+Installation des Plugins:
+Die Installation erfolgt wie bei jedem anderen Plugin auch.
+Beispiel mit Version 0.3.0
+cd /usr/src/vdr-2.0.0/PLUGINS/src
+wget http://projects.vdr-developer.org/attachments/download/1341/neutrinoepg-0.3.0.tar.gz
+tar zxf neutrinoepg-0.3.0.tar.gz
+ln -s neutrinoepg-0.3.0 neutrinoepg
+cd /usr/src/vdr-2.0.0/
+make plugins
+sudo make install-plugins
+
+Fontinstallation für Balken-Fortschrittsanzeige:
+Im Ordner neutrinoepg/vdrsymbols/ gibt es die beiden Font-Dateien:
+VDRSymbolsSans.ttf
+VDRSymbolsSans-Bold.ttf
+
+diese müssen in den Font-Ordner des Systems kopiert werden.
+Unter Ubuntu ist dieser z.B. /usr/share/fonts/truetype/
+Also z.B. mit folgendem Befehl die VDR-Fonts kopieren
+sudo cp neutrinoepg/vdrsymbols/VDRSymbols* /usr/share/fonts/truetype/
+
+Anschließend muss im VDR im Hauptmenü unter OSD der Font VDRSymbolsSans oder VDRSymbolsSans-Bold ausgewält werden.
+
+Wer diese fonts nicht benutzen möchte kann die Fortschrittsanzeige auch als Prozent anzeigen lassen. Dann müssen keine Fonts
+installiert und im VDR ausgewählt werden.
+
+Tipps zum Plugin:
+
+1.) Plugin über Extrataste aufrufen:
+Für einen schnellen Zugriff auf die EPG-Anzeige sollte das Plugin auf eine Extra-Taste der Fernbedienung gelegt werden.
+Dann muss das Plugin nicht erst über das Menü aufgerufen werden. Hierfür einfach in der Datei "vdr-conf-dir/keymacros.conf"
+folgende Zeile einfügen:
+User1    @neutrinoepg
+
+Für weitere Informationen bezüglich keymacros siehe Wiki: http://www.vdr-wiki.de/wiki/index.php/Keymacros.conf
+Dann kann der Hauptmenüeintrag über die Einstellungen entfernt werden.
+
+2.) Aufteilung der Kanäle und Kanalgruppen
+Für das Beste Look&Feel in der EPG-Anzeige sollte die channels.conf ordentlich mit Kanalgruppen sortiert werden.
+Hier ist es am sinnvollsten wenn in einer Kanalgruppe nur so viele Kanäle enthalten sind, wie auf einer Bildschirmseite passen.
+Dies ist allerdings von Skin zu Skin unterschiedlich und sollte entsprechend ausprobiert werden.
+Wenn die channels.conf entsprechend angepasst ist, kann schnell zwischen den Kanalgruppen gewechselt werden
+und man sieht auf einen Blick in jeder Kanalgruppe die laufenden Sendungen und den Fortschritt der Sendungen.
+
+
+
+In (bad) english
+
+Neutrinoepg is an EPG overview for vdr.
+
+It has an overview of all channels, the current program and the progress of the program.
+You can using the colored keys yellow/green to switch the time to see what's going on sonner or later to all channels.
+You can show the EPG info and create timers for the program.
+
+A central point of this plugin is that the channels are divided into groups and their only channels in a group are displayed.
+The channel group is in the title. Between the channel groups you can switch by using left/right or prev/next (depending on settings).
+The last choice of every group is noted so you can switch quickly between the channel groups and channels.
+Plugin Settings
+--- Behavior ---
+- Step width (min): number of minutes to jump forward or backward with the color keys yellow/green (format: mm)
+  Default: 30 (30 min)
+- Jump to: favorite timestamp where you can jump with the red key (format: hhmm)
+  Default: 2015 (20:15)
+- Switch with Ok: switch the channel with OK key or display the EPG info.
+  If Yes the channel switched with OK key, epg info shown with blue key.
+  If No the channel switched with blue key, epg info shown with OK key.
+  Default: Yes
+- Selected item centered: Should be the selected menu item alswas in the middle of the screen?
+  When activated, there is no scroll bar.
+  Default: No
+- Keys to switch channel group: Which Keys to switch between the channel groups. Selection: left/right or prev/next
+  Default: left/right
+
+Plugin Settings
+--- Behavior ---
+- Step width (min): number of minutes to jump forward or backward with the color keys yellow/green (format: mm)
+  Default: 30 (30 min)
+- Jump to: favorite timestamp where you can jump with the red key (format: hhmm)
+  Default: 2015 (20:15)
+- Switch with Ok: switch the channel with OK key or display the EPG info.
+  If Yes the channel switched with OK key, epg info shown with blue key.
+  If No the channel switched with blue key, epg info shown with OK key.
+  Default: Yes
+- Selected item centered: Should be the selected menu item alswas in the middle of the screen?
+  When activated, there is no scroll bar.
+  Default: No
+- Keys to switch channel group: Which Keys to switch between the channel groups. Selection: left/right or prev/next
+  Default: left/right
+
+--- Appearance ---
+- Hide main menu entry: Should the main menu entry "neutrinoepg" be displayed?
+  Default: Yes
+- Keep display after switching: Should the neutrinoepg Plugin be displayed after switching?
+  Default: No
+- Show channel numbers: Channel numbers in the first column?
+  Default: Yes
+- Hide encrypted channels: If encrypted channels are hidden?
+  Default: No
+- Hide radio channels: If radio cahnnels are hidden?
+  Default: No
+- Progress as percent: If Yes the progress is displayed as percentages. If no the progress is displayed as a bar graph.
+  For the bar graph the font VDRSymbolsSans.ttf must be installed (see below).
+  Default: No
+
+Installation of the plugin:
+The installation is the same as other vdr plugins.
+Example with version 0.3.0
+cd /usr/src/vdr-2.0.0/PLUGINS/src
+wget http://projects.vdr-developer.org/attachments/download/1341/neutrinoepg-0.3.0.tar.gz
+tar zxf neutrinoepg-0.3.0.tar.gz
+ln -s neutrinoepg-0.3.0 neutrinoepg
+cd /usr/src/vdr-2.0.0/
+make plugins
+sudo make install-plugins
+
+Fontinstallation for bar graph progress:
+In the folder neutrinoepg/vdrsymbols/ are the font-files:
+VDRSymbolsSans.ttf
+VDRSymbolsSans-Bold.ttf
+
+Copy these to the system font-folder.
+In Ubuntu it is for example /usr/share/fonts/truetype/
+Example command line copy
+sudo cp neutrinoepg/vdrsymbols/VDRSymbols* /usr/share/fonts/truetype/
+
+After that you must select the font VDRSymbolsSans or VDRSymbolsSans-Bold in vdr main menu osd.
+
+If you don't want to use these fonts please change the settings 'Progress as percent' to yes.
+
+
+Hints for the plugin:
+
+1.) execute plugin with keymacro:
+For a quick access create a keymacro for the plugin.
+For example place the following line in the keymacro-file "vdr-conf-dir/keymacros.conf"
+User1    @neutrinoepg
+
+For further information about keymacros see Wiki: http://www.vdr-wiki.de/wiki/index.php/Keymacros.conf
+
+2.) Distribution of channels and channel groups
+For the best look and feel to the EPG display the channels.conf should be neatly sorted by channel groups.
+It is most useful when in a channel group only so many channels are included as will fit on one screen.
+However, this is different from skin to skin and should be tried accordingly.
+If the channels.conf is adjusted accordingly, you can switch quickly between the channel groups
+and you can see at a glance in each channel group during programs and the progress of the program.
+
+Controls:
+------------------------------------------------------------------------------
+Normal keymap:
+Left/Right  - switch between channelgroups
+OK/Info	    - shows program info for selected channel, possibility to
+		      set and delete timers or switch to this channel
+Red		    - jumps to set time
+Green		- actual time - step width
+Yellow		- actual time + step width
+Blue		- switch to selected channel ("What's on now?"-view)
+		      jump to "What's on now'-view?" (while browsing)
+1-7		    - jumps 1-7 days forward from the actual time
+0		    - prompts for entering a time to which is jumped instantly

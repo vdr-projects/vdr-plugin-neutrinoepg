@@ -1,0 +1,80 @@
+# VDR plugin language source file.
+# Copyright (C) 2008 Martin Schirrmacher <vdr.neutrinoepg@schirrmacher.eu>
+# This file is distributed under the same license as the Nordlicht's EPG-Plugin package.
+#
+#
+msgid ""
+msgstr ""
+"Project-Id-Version: Neutrinoepg-Plugin 0.3.2\n"
+"Report-Msgid-Bugs-To: <see README>\n"
+"POT-Creation-Date: 2013-04-10 18:35+0200\n"
+"PO-Revision-Date: 2008-03-30 19:58+0200\n"
+"Last-Translator: \n"
+"Language-Team: <nordlicht@martins-kabuff.de>\n"
+"Language: \n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=ISO-8859-15\n"
+"Content-Transfer-Encoding: 8bit\n"
+
+msgid "Button$Edit T."
+msgstr "T. editieren"
+
+msgid "Button$Delete T."
+msgstr "T. löschen"
+
+msgid "Button$Search for repeats"
+msgstr "Wiederholungen suchen"
+
+msgid "no program info"
+msgstr "keine Programminformation"
+
+msgid "Can't switch channel!"
+msgstr "Kann Kanal nicht wechseln!"
+
+msgid "Behavior"
+msgstr "Verhalten"
+
+msgid "Step width (min)"
+msgstr "Sprungweite (min)"
+
+msgid "Favorite time"
+msgstr "Favoriten Zeit"
+
+msgid "Switch with OK"
+msgstr "Mit Ok umschalten"
+
+msgid "Selected channel centered"
+msgstr "ausgewählten Kanal mittig"
+
+msgid "Keys to switch channel group"
+msgstr "Gruppenwechsel-Taste"
+
+msgid "Appearance"
+msgstr "Erscheinungsbild"
+
+msgid "Hide main menu entry"
+msgstr "Eintrag im Hauptmenü verstecken"
+
+msgid "Channel name width"
+msgstr "Kanalnamen Breite"
+
+msgid "Keep display after switching"
+msgstr "Anzeige nach Umschalten beibehalten"
+
+msgid "Show channel numbers"
+msgstr "Kanalnummern anzeigen"
+
+msgid "Hide encrypted channels"
+msgstr "Verschlüsselte Kanäle ausblenden"
+
+msgid "Hide radio channels"
+msgstr "Radio-Kanäle ausblenden"
+
+msgid "Progress as percent"
+msgstr "Fortschrittsanzeige als Prozent"
+
+msgid "without group"
+msgstr "ohne Gruppe"
+
+msgid "Jump to"
+msgstr "Springe zu"

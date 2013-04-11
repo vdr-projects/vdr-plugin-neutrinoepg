@@ -1,0 +1,116 @@
+VDR Plugin 'neutrinoepg' Revision History
+
+2013-04-XX: Version 0.3.2
+- [Fix] komplette Neuimplementierung der Kanal- und Gruppenbehandlung innerhalb des Plugins.
+  weniger Speicherverbrauch, schneller, keine SegFaults mehr!
+  Es werden die Kanal-Indexe genommen und nicht mehr die Kanal-Nummern.
+- [Fix] Hide Radio Channels Fehler behoben (hatte zuvor zu viele Kanäle gefiltert)
+- [Fix] Fehler behoben beim behandeln der channels.conf (wenn der erste Eintrag keine Kanalgruppe ist)
+- [Fix] kleinere Fehler behoben
+- [Fix] Parameter 'switchgroupkey' wurde nicht richtig geladen
+- [Fix] Bewegung links/rechts hoch/runter innerhalb der Liste
+- [Fix] Speichern des letzten ausgewählten Kanals der einzelnen Gruppen
+- [Fix] Kanalnummern Spaltenbreite um 1 erhöht, vorher kam es zu Überschneidungen mit dem Kanalnamen
+- [Feature] roter Button ist jetzt immer 'Favoriten Zeit' (vorher nur wenn SwitchWithOK auf Nein)
+- [Feature] epgsearch Support - in der EPG-Info kann man mittels gelben Button nach Wiederholungen suchen
+  (epgsearch muss installiert und geladen sein)
+- [Feature] Parameter 'ChannelNameWidth' hinzugefügt. Hiermit kann die Breite der Spalte für den Kanalnamen angepasst werden.
+  (Default-Wert: 15, vorher war fest 10 im Plugin eingestellt!)
+- Plugin Beschreibung und Menünamen angepasst (Danke Saman)
+- Übersetzungen angepasst
+
+2013-04-08: Version 0.3.1
+- Fehler gefixt wenn keine Kanalgruppen in der channels.conf vorhanden sind.
+- Parameter 'middlemenuentry' hinzugefügt. Soll der ausgewählte Menüeintrag in der Mitte des Bildschirms angezeigt werden,
+  oder das normale vdr-Verhalten? Wenn der Menüeintrag in der Mitte angezeigt wird, gibt es keinen Scrollbalken und
+  man erhählt kein visuelles Feedback wenn man die hoch-/runter-Taste gedrückt hält (man sieht erst wohin man gesprungen
+  ist wenn man die Taste losgelassen hat.
+- Parameter 'switchgroupkey' hinzugefügt. Mit welchen Tasten soll zwischen den Gruppen gewechselt werden.
+  Links/Rechts oder Next/Prev (die anderen Tasten werden für das Seitenweise Blättern benutzt)
+- Sortierung der Plugin-Einstellungen
+- README angepasst
+
+2013-04-07: Version 0.3.0
+- Fehler in der Behandlung der Kanalnummer, über das @ kann die Kanalnummer in der channels.conf gesetzt werden
+- Parameter MAXGROUPS entfernt und dynamisch umgesetzt
+- Parameter 'percentprogress' hinzugefügt. Soll die Fortschritsanzeige als Prozent oder als Balken angezeigt werden
+- über die Tasten Next/Prev kann Seitenweise geblättert werden
+- Anpassung der Version
+- Fehlende Übersetzungen entfernt
+- Verzeichnis heißt nun neutrinoepg-0.3.0
+- Quelltext weiter aufgeräumt
+
+2013-04-06: Version 0.2.0
+- Menüauswahl in der Mitte des Bildschirms
+- Tasten links,rechts wechselt zwischen Kanalgruppen
+- vdr-2.0 Makefile UnterstÃ¼tzung
+
+2013-01-01: Version 0.1.0
+- initiale Entwicklung von 'neutrinoepg' auf Basis von 'nordlichtsepg' Version 0.9
+- Aufteilung des Quelltextes in einzelne Dateien
+- AufrÃ¤umen des Quelltextes
+
+VDR Plugin 'nordlichtsepg' Revision History
+-------------------------------------------
+
+2008-03-30: Version 0.9
+- made plugin ready vor VDR 1.6.0 (i18n, symbols)
+- removed option "Is enigma theme used"
+
+2006-03-21: Version 0.8a
+- fixed wrong display of progressbar with enigma theme
+- while browsing the progressbar is kept displayed if the current event is
+  still running at the browsed-to time
+
+2006-03-17: Version 0.8
+- changed appearance of progress bars
+- removed none-working kInfo-handling
+
+2006-02-25: Version 0.7
+- added option to switch with Ok; see README
+- timers are now set instantly, timer-edit-menu is only shown for channels
+  without event info (because there are no reasonable values)
+- added option to delete timers
+
+2006-02-17: Version 0.6
+- added the possibility to enter a time to jump to instantly; see README
+- added option to hide radio channels
+- if the time you defined in the setup to jump to by pressing 'red' is before
+  the current time, it now jumps to this time at the following day
+- if a timer for an event overlaps with other because of the margins, timer
+  markers are also shown for this events - fixed; the markers are now shown
+  only if there is a timer for the time browsed to
+- timer markers are now shown instantly if a timer was set
+- small icons for timer- and recording-marker adjusted
+
+2005-11-24: Version 0.5
+- timer-/recordings-markers also shown for channels without epg-infos
+- it is able to set timers at channels without epg-infos
+- it is now possible to edit to values if a timer is set (thanks to 
+  Chistian Wieninger and HFlor@vdrportal for solving this problem)
+- added adjustments for Enigma theme (thanks to Andreas Brugger)
+- revised the README
+
+2005-11-15: Version 0.4
+- moved the position of the timer-/recording-marker (again)
+- now all channels are listed even if there are no epg-infos
+- added finish translation (thanks to Rolf Ahrenberg)
+- added option to show channel groups
+- added option to hide encrypted channels
+
+2005-09-14: Version 0.3
+- fixed spaces if small font is used
+- progress bar now without spaces
+- added recording-marker
+- using icons for timer- and recording-marker
+
+2005-09-09: Version 0.2
+- moved the position of the timer-marker
+- 20:15 as jump-preset
+- 'Jump' replaced with the adjusted time
+- you can switch the channel with 'blue' at the "Whats on now?"-view
+- with 1..7 you can jump from the current time 1..7 days forward
+- you can choose if the display should be kept on after switching
+
+2005-09-07: Version 0.1
+- Initial revision.
