@@ -78,17 +78,14 @@ myOsdMenu::myOsdMenu() : cOsdMenu("")
         if( CurrentGroupChannel[Group] == -1 )
         {
             CurrentGroupChannel[Group] = GetFirstChannelOfGroup(Group);
-            syslog(LOG_ERR, "neutrinoepg: Group: %d CurrentGroupChannel: %d", Group, CurrentGroupChannel[Group]);
         }
         if( FirstGroupChannel[Group] == -1 )
         {
             FirstGroupChannel[Group] = GetFirstChannelOfGroup(Group);
-            syslog(LOG_ERR, "neutrinoepg: Group: %d FirstGroupChannel: %d", Group, FirstGroupChannel[Group]);
         }
         if( LastGroupChannel[Group] == -1 )
         {
             LastGroupChannel[Group] = GetLastChannelOfGroup(Group);
-            syslog(LOG_ERR, "neutrinoepg: Group: %d LastGroupChannel: %d", Group, LastGroupChannel[Group]);
         }
     }
 
@@ -152,8 +149,18 @@ int myOsdMenu::GetFirstGroupIndex(void)
 
 int myOsdMenu::GetFirstChannelOfGroup(int Group)
 {
-    if( ChannelsHasGroup() == false )
-        return Channels.First()->Index();
+    if( ChannelsHasGroup() == false ) // no groups -> get First Channel
+    {
+        cChannel *Channel;
+        Channel = Channels.First();
+        if( Channel == NULL )
+            return -1;
+        bool isRadio = ( (!Channel->Vpid()) && (Channel->Apid(0)) ) ? true : false;
+        if( !(isRadio && hideradiochannels) && !(Channel->Ca() && hideencryptedchannels) )
+            return Channel->Index();
+
+        return GetNextChannel( Channel->Index() );
+    }
 
     return GetNextChannel( GetGroupIndex(Group) );
 }
@@ -165,7 +172,18 @@ int myOsdMenu::GetLastChannelOfGroup(int Group)
     if( NextGroup != -1 )
         return GetPrevChannel(NextGroup);
     else // no next group -> get last channel
-        return Channels.Last()->Index();
+    {
+        cChannel *Channel;
+        Channel = Channels.Last();
+        if( Channel == NULL )
+            return -1;
+        bool isRadio = ( (!Channel->Vpid()) && (Channel->Apid(0)) ) ? true : false;
+        if( !(isRadio && hideradiochannels) && !(Channel->Ca() && hideencryptedchannels) )
+            return Channel->Index();
+    
+        return GetPrevChannel( Channel->Index() );
+    }
+    
 }
 
 int myOsdMenu::GetNextChannel(int ChanIndex)
@@ -186,6 +204,7 @@ int myOsdMenu::GetNextChannel(int ChanIndex)
 
     return Channel->Index();
 }
+
 int myOsdMenu::GetPrevChannel(int ChanIndex)
 {
     cChannel *Channel;
@@ -203,6 +222,21 @@ int myOsdMenu::GetPrevChannel(int ChanIndex)
         return -1;
 
     return Channel->Index();
+}
+
+int myOsdMenu::GetNextChannelOfGroup(int ChanIndex, int Group)
+{
+    int NextIndex = GetNextChannel( ChanIndex );
+    if( isChannelInGroup( NextIndex, Group ) == false )
+        return -1;
+    return NextIndex;
+}
+int myOsdMenu::GetPrevChannelOfGroup(int ChanIndex, int Group)
+{
+    int PrevIndex = GetPrevChannel( ChanIndex );
+    if( isChannelInGroup( PrevIndex, Group ) == false )
+        return -1;
+    return PrevIndex;
 }
 
 bool myOsdMenu::isChannelInGroup(int ChanIndex, int Group)
@@ -239,66 +273,77 @@ void myOsdMenu::LoadSchedules(int shift)
     Clear();
 
     schedules = cSchedules::Schedules(schedulesLock);
-    for( cChannel *Channel = Channels.First(); Channel; Channel = Channels.Next(Channel) )
+    if( middlemenuentry )
     {
-        // is filtered by config?
-        bool isRadio = ( (!Channel->Vpid()) && (Channel->Apid(0)) ) ? true : false;
-        if( (isRadio && hideradiochannels) || (Channel->Ca() && hideencryptedchannels) )
-            continue;
-
-        // only channels!
-        if( Channel->GroupSep() )
-            continue;
-
-        // only channels of the current Group
-        if( !isChannelInGroup( Channel->Index(), CurrentGroup ) )
-            continue;
-
-        // Hack to show the current channel in the middle of the screen
-        // so do not show channels before
-        // do it only if the settings middlemenuentry is set
-
-        // only if channels in group > channels shown on display
-        if( (LastGroupChannel[CurrentGroup] - FirstGroupChannel[CurrentGroup]) > ChannelsShown && middlemenuentry)
+        int NumAdded = 0;
+        int AddChanIndex = -1, ChanIndex = -1;
+        AddChanIndex = CurrentGroupChannel[CurrentGroup];
+        ChanIndex = AddChanIndex;
+        
+        // count if we have more channels add to the front because we are at the end
+        int ExtraAdded = ChannelsAfter;
+        while( ExtraAdded-- )
         {
-            // at the beginning
-            if( (CurrentGroupChannel[CurrentGroup] - FirstGroupChannel[CurrentGroup]) < ChannelsBefore )
+            ChanIndex = GetNextChannelOfGroup( ChanIndex, CurrentGroup );
+            if( ChanIndex == -1 )
+                break;
+        }
+
+        ChanIndex = AddChanIndex;
+
+        // count Channels
+        NumAdded -= ExtraAdded;
+        for( ; NumAdded <= ChannelsBefore; NumAdded++ )
+        {
+            AddChanIndex = GetPrevChannelOfGroup( AddChanIndex, CurrentGroup );
+            if( AddChanIndex == -1 )
+                break;
+            ChanIndex = AddChanIndex;
+        }
+        for( NumAdded = 0; NumAdded < ChannelsShown && ChanIndex != -1; NumAdded++ )
+        {
+            cChannel *Channel = Channels.Get( ChanIndex );
+            const cSchedule *Schedule = schedules->GetSchedule( Channel->GetChannelID() );
+            if(Schedule)
             {
-                if( (Channel->Index() - FirstGroupChannel[CurrentGroup]) >= ChannelsShown )
-                    continue;
-            } 
-            else
-            {
-                // in the middle
-                // don't show channels from the beginning
-                if( Channel->Index() < CurrentGroupChannel[CurrentGroup] )
-                {
-                    if( (CurrentGroupChannel[CurrentGroup] - Channel->Index()) > ChannelsBefore )
-                        continue;
-                }
-                // don't show channels from the end
-                if( Channel->Index() > CurrentGroupChannel[CurrentGroup] )
-                {
-                    if( (Channel->Index() - CurrentGroupChannel[CurrentGroup]) > ChannelsAfter )
-                        continue;
-                }
+                // event from now or any other date (next)
+                const cEvent *Event = next ? Schedule->GetEventAround(t) : Schedule->GetPresentEvent();
+                Add(new myOsdItem(Event, Channel, next), Channel->Index() == CurrentGroupChannel[CurrentGroup] );
             }
-            if( (LastGroupChannel[CurrentGroup] - CurrentGroupChannel[CurrentGroup]) < ChannelsAfter && 
-                (Channel->Index() - LastGroupChannel[CurrentGroup]) >= ChannelsShown )
-                continue;
+            else
+                Add(new myOsdItem(NULL, Channel, next), Channel->Index() == CurrentGroupChannel[CurrentGroup] );
+            ChanIndex = GetNextChannelOfGroup( ChanIndex, CurrentGroup );
         }
         
-        const cSchedule *Schedule = schedules->GetSchedule( Channel->GetChannelID() );
-        if(Schedule)
-        {
-            // event from now or any other date (next)
-            const cEvent *Event = next ? Schedule->GetEventAround(t) : Schedule->GetPresentEvent();
-            Add(new myOsdItem(Event, Channel, next), Channel->Index() == CurrentGroupChannel[CurrentGroup] );
-        }
-        else
-            Add(new myOsdItem(NULL, Channel, next), Channel->Index() == CurrentGroupChannel[CurrentGroup] );
     }
+    else
+    {
+        for( cChannel *Channel = Channels.First(); Channel; Channel = Channels.Next(Channel) )
+        {
+            // is filtered by config?
+            bool isRadio = ( (!Channel->Vpid()) && (Channel->Apid(0)) ) ? true : false;
+            if( (isRadio && hideradiochannels) || (Channel->Ca() && hideencryptedchannels) )
+                continue;
 
+            // only channels!
+            if( Channel->GroupSep() )
+                continue;
+
+            // only channels of the current Group
+            if( !isChannelInGroup( Channel->Index(), CurrentGroup ) )
+                continue;
+
+            const cSchedule *Schedule = schedules->GetSchedule( Channel->GetChannelID() );
+            if(Schedule)
+            {
+                // event from now or any other date (next)
+                const cEvent *Event = next ? Schedule->GetEventAround(t) : Schedule->GetPresentEvent();
+                Add(new myOsdItem(Event, Channel, next), Channel->Index() == CurrentGroupChannel[CurrentGroup] );
+            }
+            else
+                Add(new myOsdItem(NULL, Channel, next), Channel->Index() == CurrentGroupChannel[CurrentGroup] );
+        }
+    }
     sprintf(tmp, "%d:%d", bookmark / 100, bookmark % 100);
 
     SetMyTitle();

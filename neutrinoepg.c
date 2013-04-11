@@ -21,8 +21,12 @@ int ChannelNameWidth = 15;
 
 
 // --- myMenuSetup ------------------------------------------------------------
-class myMenuSetup:public cMenuSetupPage
+class myMenuSetup : public cMenuSetupPage
 {
+    private:
+        const char *SwitchGroupKeyTexts[2];
+        const char *SitchWithOKTexts[2];
+    
     protected:
         virtual void Store()
         {
@@ -42,10 +46,9 @@ class myMenuSetup:public cMenuSetupPage
     public:
         myMenuSetup()
         {
-            const char *SwitchGroupKeyTexts[2];
             SwitchGroupKeyTexts[0] = tr("left/right");
             SwitchGroupKeyTexts[1] = tr("prev/next");
-            const char *SitchWithOKTexts[2];
+
             SitchWithOKTexts[0] = tr("Blue");
             SitchWithOKTexts[1] = tr("Ok");
 

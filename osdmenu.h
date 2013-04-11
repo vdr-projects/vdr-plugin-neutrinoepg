@@ -45,6 +45,8 @@ class myOsdMenu : public cOsdMenu
         int GetLastChannelOfGroup(int Group);
         int GetNextChannel(int ChanIndex);
         int GetPrevChannel(int ChanIndex);
+        int GetNextChannelOfGroup(int ChanIndex, int Group);
+        int GetPrevChannelOfGroup(int ChanIndex, int Group);
         bool isChannelInGroup(int ChanIndex, int Group);
         bool ChannelsHasGroup(void);
         bool FirstChannelsHasGroup(void);
