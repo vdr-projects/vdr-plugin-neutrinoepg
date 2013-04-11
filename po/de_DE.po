@@ -7,7 +7,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: Neutrinoepg-Plugin 0.3.2\n"
 "Report-Msgid-Bugs-To: <see README>\n"
-"POT-Creation-Date: 2013-04-10 18:35+0200\n"
+"POT-Creation-Date: 2013-04-11 15:59+0200\n"
 "PO-Revision-Date: 2008-03-30 19:58+0200\n"
 "Last-Translator: \n"
 "Language-Team: <nordlicht@martins-kabuff.de>\n"
@@ -31,6 +31,18 @@ msgstr "keine Programminformation"
 msgid "Can't switch channel!"
 msgstr "Kann Kanal nicht wechseln!"
 
+msgid "left/right"
+msgstr "links/rechts"
+
+msgid "prev/next"
+msgstr "prev/next"
+
+msgid "Blue"
+msgstr "Blau"
+
+msgid "Ok"
+msgstr "Ok"
+
 msgid "Behavior"
 msgstr "Verhalten"
 
@@ -43,7 +55,7 @@ msgstr "Favoriten Zeit"
 msgid "Switch with OK"
 msgstr "Mit Ok umschalten"
 
-msgid "Selected channel centered"
+msgid "Selected item centered"
 msgstr "ausgewählten Kanal mittig"
 
 msgid "Keys to switch channel group"

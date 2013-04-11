@@ -42,12 +42,17 @@ class myMenuSetup:public cMenuSetupPage
     public:
         myMenuSetup()
         {
-            static const char *const SwitchGroupKeyTexts[] = {"left/right", "prev/next",};
+            const char *SwitchGroupKeyTexts[2];
+            SwitchGroupKeyTexts[0] = tr("left/right");
+            SwitchGroupKeyTexts[1] = tr("prev/next");
+            const char *SitchWithOKTexts[2];
+            SitchWithOKTexts[0] = tr("Blue");
+            SitchWithOKTexts[1] = tr("Ok");
 
             Add(new cOsdItem(tr("Behavior"), osUnknown, false));
             Add(new cMenuEditIntItem(tr("Step width (min)"), &Step));
             Add(new cMenuEditTimeItem(tr("Favorite time"), &bookmark));
-            Add(new cMenuEditBoolItem(tr("Switch with OK"), &switchwithok));
+            Add(new cMenuEditStraItem(tr("Switch with OK"), &switchwithok, 2, SitchWithOKTexts));
             Add(new cMenuEditBoolItem(tr("Selected item centered"), &middlemenuentry));
             Add(new cMenuEditStraItem(tr("Keys to switch channel group"), &switchgroupkey, 2, SwitchGroupKeyTexts));
 
