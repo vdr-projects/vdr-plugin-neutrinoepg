@@ -47,7 +47,7 @@ msgid "Selected channel centered"
 msgstr "ausgewählten Kanal mittig"
 
 msgid "Keys to switch channel group"
-msgstr "Gruppenwechsel-Taste"
+msgstr "Gruppenwechsel-Tasten"
 
 msgid "Appearance"
 msgstr "Erscheinungsbild"
@@ -56,7 +56,7 @@ msgid "Hide main menu entry"
 msgstr "Eintrag im Hauptmenü verstecken"
 
 msgid "Channel name width"
-msgstr "Kanalnamen Breite"
+msgstr "Kanalnamen Spaltenbreite"
 
 msgid "Keep display after switching"
 msgstr "Anzeige nach Umschalten beibehalten"
