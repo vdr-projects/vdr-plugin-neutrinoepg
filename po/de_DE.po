@@ -52,8 +52,8 @@ msgstr "Sprungweite (min)"
 msgid "Favorite time"
 msgstr "Favoriten Zeit"
 
-msgid "Switch with OK"
-msgstr "Mit Ok umschalten"
+msgid "Key to switch channel"
+msgstr "Taste zum Umschalten"
 
 msgid "Selected item centered"
 msgstr "ausgewählten Kanal mittig"
