@@ -32,11 +32,13 @@ static const char *VERSION        = "0.3.2";
 static const char *DESCRIPTION    = "View the EPG like neutrino does";
 static const char *MAINMENUENTRY  = "Neutrino EPG";
 
+extern bool ReloadFilters;
 
 // --- cPluginNeutrinoEpg ---------------------------------------------------
 class cPluginNeutrinoEpg:public cPlugin
 {
     private:
+    
     public:
         cPluginNeutrinoEpg(void);
         virtual ~cPluginNeutrinoEpg();

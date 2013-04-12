@@ -66,9 +66,26 @@ myOsdMenu::myOsdMenu() : cOsdMenu("")
         ChannelsAfter = (ChannelsShown / 2)-1;
     }
 
+    if( ReloadFilters )
+    {
+        ReloadFilters = false;
+        for( int i = 0; i < MaxGroup; i++)
+        {
+            CurrentGroupChannel[i] = -1;
+            FirstGroupChannel[i] = -1;
+            LastGroupChannel[i] = -1;
+        }
+    }
+    
     // what is the current watching channel?
     int CurrentChannelNr = cDevice::CurrentChannel();
     cChannel *CurrentChannel = Channels.GetByNumber(CurrentChannelNr);
+    // is Current Channel is filtered?
+    bool isRadio = ( (!CurrentChannel->Vpid()) && (CurrentChannel->Apid(0)) ) ? true : false;
+    if( (isRadio && hideradiochannels) || (CurrentChannel->Ca() && hideencryptedchannels) )
+    {
+        CurrentChannel = Channels.Get( GetNextChannel( CurrentChannel->Index() ) );
+    }
     // what is the current channel & group?
     CurrentGroup = GetGroupFromChannel( CurrentChannel->Index() );
     CurrentGroupChannel[CurrentGroup] = CurrentChannel->Index();

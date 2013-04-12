@@ -19,7 +19,7 @@ int middlemenuentry = false;
 int switchgroupkey = 0;
 int ChannelNameWidth = 15;
 
-
+bool ReloadFilters = false;
 // --- myMenuSetup ------------------------------------------------------------
 class myMenuSetup : public cMenuSetupPage
 {
@@ -42,7 +42,9 @@ class myMenuSetup : public cMenuSetupPage
             SetupStore("middlemenuentry", middlemenuentry);
             SetupStore("switchgroupkey", switchgroupkey);
             SetupStore("ChannelNameWidth", ChannelNameWidth);
-       }
+
+            ReloadFilters = true;
+        }
     public:
         myMenuSetup()
         {
@@ -55,7 +57,7 @@ class myMenuSetup : public cMenuSetupPage
             Add(new cOsdItem(tr("Behavior"), osUnknown, false));
             Add(new cMenuEditIntItem(tr("Step width (min)"), &Step));
             Add(new cMenuEditTimeItem(tr("Favorite time"), &bookmark));
-            Add(new cMenuEditStraItem(tr("Switch with OK"), &switchwithok, 2, SitchWithOKTexts));
+            Add(new cMenuEditStraItem(tr("Key to switch channel"), &switchwithok, 2, SitchWithOKTexts));
             Add(new cMenuEditBoolItem(tr("Selected item centered"), &middlemenuentry));
             Add(new cMenuEditStraItem(tr("Keys to switch channel group"), &switchgroupkey, 2, SwitchGroupKeyTexts));
 
@@ -122,6 +124,8 @@ bool cPluginNeutrinoEpg::Start(void)
         FirstGroupChannel[i] = -1;
         LastGroupChannel[i] = -1;
     }
+    ReloadFilters = true;
+    
     return true;
 }
 
