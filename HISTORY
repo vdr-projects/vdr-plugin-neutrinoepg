@@ -1,11 +1,16 @@
 VDR Plugin 'neutrinoepg' Revision History
 
-2013-04-XX: Version 0.3.2
+2013-04-12: Version 0.3.3
 - [Fix] komplette Neuimplementierung der Kanal- und Gruppenbehandlung innerhalb des Plugins.
   weniger Speicherverbrauch, schneller, keine SegFaults mehr!
-  Es werden die Kanal-Indexe genommen und nicht mehr die Kanal-Nummern.
-- [Fix] Hide Radio Channels Fehler behoben (hatte zuvor zu viele Kanäle gefiltert)
+  Es werden Kanal-Indexe genommen und nicht mehr die Kanal-Nummern.
+- [Fix] Implementierung der Option 'MiddleMenuEntry' komplett Neu.
+  Dadurch effizienter, es werden nicht mehr alle Kanäle durchlaufen wenn die Option gesetzt ist.
+- [Fix] 'HideRadioChannels' Fehler behoben (hatte zuvor zu viele Kanäle gefiltert)
+- [Fix] Die Einstellungen 'HideRadioChannels' & 'HideEncrytedChannels' wurden nur beim
+  Start des Plugins geladen und auf die Anzeige gesetzt. Jetzt bei jeder Änderung.
 - [Fix] Fehler behoben beim behandeln der channels.conf (wenn der erste Eintrag keine Kanalgruppe ist)
+- [Fix] Wenn die erste oder letzte Kanalgruppe keine Kanäle hat
 - [Fix] kleinere Fehler behoben
 - [Fix] Parameter 'switchgroupkey' wurde nicht richtig geladen
 - [Fix] Bewegung links/rechts hoch/runter innerhalb der Liste

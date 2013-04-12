@@ -76,7 +76,7 @@ myOsdMenu::myOsdMenu() : cOsdMenu("")
             LastGroupChannel[i] = -1;
         }
     }
-    
+
     // what is the current watching channel?
     int CurrentChannelNr = cDevice::CurrentChannel();
     cChannel *CurrentChannel = Channels.GetByNumber(CurrentChannelNr);
@@ -89,6 +89,8 @@ myOsdMenu::myOsdMenu() : cOsdMenu("")
     // what is the current channel & group?
     CurrentGroup = GetGroupFromChannel( CurrentChannel->Index() );
     CurrentGroupChannel[CurrentGroup] = CurrentChannel->Index();
+
+    //syslog(LOG_ERR, "neutrinoepg: Group %d Channel %d", CurrentGroup, CurrentGroupChannel[CurrentGroup]);
 
     for( int Group = 0; Group < MaxGroup; Group++)
     {
@@ -115,6 +117,9 @@ myOsdMenu::~myOsdMenu()
 
 int myOsdMenu::GetGroupIndex(int Group)
 {
+    if( Group < 0 )
+        return -1;
+
     if( FirstChannelsHasGroup() == false && Group == 0)
         return -1;
 
@@ -176,10 +181,10 @@ int myOsdMenu::GetFirstChannelOfGroup(int Group)
         if( !(isRadio && hideradiochannels) && !(Channel->Ca() && hideencryptedchannels) )
             return Channel->Index();
 
-        return GetNextChannel( Channel->Index() );
+        return GetNextChannelOfGroup( Channel->Index(), Group );
     }
 
-    return GetNextChannel( GetGroupIndex(Group) );
+    return GetNextChannelOfGroup( GetGroupIndex(Group), Group );
 }
 
 int myOsdMenu::GetLastChannelOfGroup(int Group)
@@ -187,18 +192,21 @@ int myOsdMenu::GetLastChannelOfGroup(int Group)
     int NextGroup = Channels.GetNextGroup( GetGroupIndex(Group) );
     // next group -> get prev channel of next group
     if( NextGroup != -1 )
-        return GetPrevChannel(NextGroup);
+        return GetPrevChannelOfGroup(NextGroup, Group);
     else // no next group -> get last channel
     {
         cChannel *Channel;
         Channel = Channels.Last();
         if( Channel == NULL )
             return -1;
+        if( isChannelInGroup( Channel->Index(), Group ) == false )
+            return -1;
+
         bool isRadio = ( (!Channel->Vpid()) && (Channel->Apid(0)) ) ? true : false;
         if( !(isRadio && hideradiochannels) && !(Channel->Ca() && hideencryptedchannels) )
             return Channel->Index();
     
-        return GetPrevChannel( Channel->Index() );
+        return GetPrevChannelOfGroup( Channel->Index(), Group );
     }
     
 }
@@ -717,8 +725,6 @@ eOSState myOsdMenu::ProcessKey(eKeys Key)
                                 CurrentGroupChannel[CurrentGroup] = FirstGroupChannel[CurrentGroup];
                             }
                         }
-                        
-                        //syslog(LOG_ERR, "neutrinoepg: left after Group: %d Channel: %d", CurrentGroup, CurrentGroupChannel[CurrentGroup]);
                         
                         if( middlemenuentry ) // if middlemenuentry hack is set do own page up
                         {
