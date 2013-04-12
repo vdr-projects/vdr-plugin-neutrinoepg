@@ -28,7 +28,7 @@ extern int middlemenuentry;
 extern int switchgroupkey;
 extern int ChannelNameWidth;
 
-static const char *VERSION        = "0.3.2";
+static const char *VERSION        = "0.3.3";
 static const char *DESCRIPTION    = "View the EPG like neutrino does";
 static const char *MAINMENUENTRY  = "Neutrino EPG";
 
