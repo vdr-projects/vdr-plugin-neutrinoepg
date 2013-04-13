@@ -15,7 +15,7 @@ class myOsdMenu : public cOsdMenu
 {
     private:
         bool next, jumpto;
-        char tmp[16];
+        char tmp[64];
         
         int GroupCount;
         int ChannelCount;
