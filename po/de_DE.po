@@ -7,7 +7,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: Neutrinoepg-Plugin 0.3.3\n"
 "Report-Msgid-Bugs-To: <see README>\n"
-"POT-Creation-Date: 2013-04-12 09:54+0200\n"
+"POT-Creation-Date: 2013-04-17 09:28+0200\n"
 "PO-Revision-Date: 2008-03-30 19:58+0200\n"
 "Last-Translator: \n"
 "Language-Team: <nordlicht@martins-kabuff.de>\n"
@@ -75,6 +75,9 @@ msgstr "Anzeige nach Umschalten beibehalten"
 
 msgid "Show channel numbers"
 msgstr "Kanalnummern anzeigen"
+
+msgid "Hide Groups at Groupnr"
+msgstr "Gruppen ausblenden ab Gruppennr"
 
 msgid "Hide encrypted channels"
 msgstr "Verschlüsselte Kanäle ausblenden"

@@ -27,6 +27,7 @@ extern int percentprogress;
 extern int middlemenuentry;
 extern int switchgroupkey;
 extern int ChannelNameWidth;
+extern int HideGroupsAt;
 
 static const char *VERSION        = "0.3.3";
 static const char *DESCRIPTION    = "View the EPG like neutrino does";

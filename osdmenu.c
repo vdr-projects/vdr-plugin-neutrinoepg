@@ -2,8 +2,6 @@
 #include "osditem.h"
 #include "menuevent.h"
 
-#include <time.h>
-
 time_t t;
 
 int *GroupIndex;
@@ -15,18 +13,9 @@ int ChannelsShown;
 int ChannelsBefore;
 int ChannelsAfter;
 
-double diffclock(clock_t clock1,clock_t clock2)
-{
-    double diffticks = clock1 - clock2;
-    double diffs = diffticks / CLOCKS_PER_SEC;
-    return diffs;
-}
-
 myOsdMenu::myOsdMenu() : cOsdMenu("")
 {
     jumpto = false;
-
-    syslog(LOG_ERR, "neutrinoepg OsdMenu Init");
 
     if( Setup.UseSmallFont == 2 )
     {
@@ -78,11 +67,6 @@ myOsdMenu::myOsdMenu() : cOsdMenu("")
         ChannelsAfter = (ChannelsShown / 2)-1;
     }
 
-    int chan_edited = Channels.BeingEdited();
-    syslog(LOG_ERR, "neutrinoepg chan_edited: %d", chan_edited);
-   
-    if( ReloadFilters || chan_edited )
-    {
         clock_t begin = clock();
         clock_t end = clock();
         ReloadFilters = false;
@@ -98,6 +82,16 @@ myOsdMenu::myOsdMenu() : cOsdMenu("")
 
         if( !Channels.First()->GroupSep() )
             MaxGroup++;
+
+        // Hide Groups?
+        if( HideGroupsAt > MaxGroup )
+            HideGroupsAt = MaxGroup;
+        if( HideGroupsAt <= 1 )
+            HideGroupsAt = 0;
+        if( HideGroupsAt > 1 )
+        {
+            MaxGroup -= MaxGroup - HideGroupsAt + 1;
+        }
 
         if( GroupIndex != NULL )
             delete[] GroupIndex;
@@ -127,7 +121,7 @@ myOsdMenu::myOsdMenu() : cOsdMenu("")
             GroupIndex[0] = -1;
             index = 1;
         }
-        for( cChannel *Channel = Channels.First(); Channel; Channel = Channels.Next(Channel) )
+        for( cChannel *Channel = Channels.First(); Channel && index < MaxGroup; Channel = Channels.Next(Channel) )
         {
             if( Channel->GroupSep() )
             {
@@ -153,9 +147,6 @@ myOsdMenu::myOsdMenu() : cOsdMenu("")
             }
             end = clock();
         }
-        end = clock();
-        syslog(LOG_ERR, "neutrinoepg time last for get channels: %.3f s", diffclock(end, begin));
-    }
 
     // what is the current watching channel?
     int CurrentChannelNr = cDevice::CurrentChannel();

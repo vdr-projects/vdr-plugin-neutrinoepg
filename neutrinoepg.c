@@ -18,6 +18,7 @@ int percentprogress = false;
 int middlemenuentry = false;
 int switchgroupkey = 0;
 int ChannelNameWidth = 15;
+int HideGroupsAt = 0;
 
 bool ReloadFilters = false;
 // --- myMenuSetup ------------------------------------------------------------
@@ -26,7 +27,6 @@ class myMenuSetup : public cMenuSetupPage
     private:
         const char *SwitchGroupKeyTexts[2];
         const char *SitchWithOKTexts[2];
-    
     protected:
         virtual void Store()
         {
@@ -42,6 +42,7 @@ class myMenuSetup : public cMenuSetupPage
             SetupStore("middlemenuentry", middlemenuentry);
             SetupStore("switchgroupkey", switchgroupkey);
             SetupStore("ChannelNameWidth", ChannelNameWidth);
+            SetupStore("HideGroupsAt", HideGroupsAt);
 
             ReloadFilters = true;
         }
@@ -66,6 +67,7 @@ class myMenuSetup : public cMenuSetupPage
             Add(new cMenuEditIntItem(tr("Channel name width"), &ChannelNameWidth));
             Add(new cMenuEditBoolItem(tr("Keep display after switching"), &keeposd));
             Add(new cMenuEditBoolItem(tr("Show channel numbers"), &showchannelnumbers));
+            Add(new cMenuEditIntItem(tr("Hide Groups at Groupnr"), &HideGroupsAt));
             Add(new cMenuEditBoolItem(tr("Hide encrypted channels"), &hideencryptedchannels));
             Add(new cMenuEditBoolItem(tr("Hide radio channels"), &hideradiochannels));
             Add(new cMenuEditBoolItem(tr("Progress as percent"), &percentprogress));
@@ -163,6 +165,8 @@ bool cPluginNeutrinoEpg::SetupParse(const char *Name, const char *Value)
         ChannelNameWidth = atoi(Value);
     else if(!strcmp("switchgroupkey", Name))
         switchgroupkey = atoi(Value);
+    else if(!strcmp("HideGroupsAt", Name))
+        HideGroupsAt = atoi(Value);
     else
         return false;
     return true;
