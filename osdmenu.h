@@ -5,7 +5,7 @@
 #include "neutrinoepg.h"
 
 extern time_t t;
-extern int MaxGroup;
+extern int *GroupIndex;
 extern int *CurrentGroupChannel;
 extern int *FirstGroupChannel;
 extern int *LastGroupChannel;
@@ -16,9 +16,8 @@ class myOsdMenu : public cOsdMenu
     private:
         bool next, jumpto;
         char tmp[64];
-        
-        int GroupCount;
-        int ChannelCount;
+    
+        int MaxGroup;
 
         int ChannelsShown;
         int ChannelsBefore;
@@ -34,7 +33,7 @@ class myOsdMenu : public cOsdMenu
         void JumpTo(int hh,int mm);
         void SetMyTitle(void);
         eOSState Switch();
-        int Tab(){if(Setup.UseSmallFont==2)return 5;else return 6;}
+        int Tab(){ return Setup.UseSmallFont == 2 ? 5 : 6; }
 
         int GetGroupIndex(int Group);
         int GetGroupByGroupIndex(int GroupIndex);

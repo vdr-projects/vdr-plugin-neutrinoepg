@@ -53,7 +53,7 @@ void myOsdItem::Set()
     const char *m = " ";
 
     // look for timers
-    for(cTimer *ti = Timers.First();ti;ti = Timers.Next(ti))
+    for(cTimer *ti = Timers.First(); ti; ti = Timers.Next(ti))
     {
         if(ti->Matches(t) && (ti->Channel() == channel))
         {

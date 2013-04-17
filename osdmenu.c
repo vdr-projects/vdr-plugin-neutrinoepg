@@ -2,9 +2,11 @@
 #include "osditem.h"
 #include "menuevent.h"
 
+#include <time.h>
+
 time_t t;
 
-int MaxGroup;
+int *GroupIndex;
 int *CurrentGroupChannel;
 int *FirstGroupChannel;
 int *LastGroupChannel;
@@ -13,9 +15,18 @@ int ChannelsShown;
 int ChannelsBefore;
 int ChannelsAfter;
 
+double diffclock(clock_t clock1,clock_t clock2)
+{
+    double diffticks = clock1 - clock2;
+    double diffs = diffticks / CLOCKS_PER_SEC;
+    return diffs;
+}
+
 myOsdMenu::myOsdMenu() : cOsdMenu("")
 {
     jumpto = false;
+
+    syslog(LOG_ERR, "neutrinoepg OsdMenu Init");
 
     if( Setup.UseSmallFont == 2 )
     {
@@ -53,7 +64,8 @@ myOsdMenu::myOsdMenu() : cOsdMenu("")
     cOsdItem *tItem = Get(Current());
     ChannelsShown = atoi((const char *)tItem->Text());
     Clear();
-    
+    //ChannelsShown = Skins.Current()->DisplayMenu()->MaxItems();
+
     // how many items are before and after the middle item
     if( (ChannelsShown % 2) != 0 )
     {
@@ -66,15 +78,83 @@ myOsdMenu::myOsdMenu() : cOsdMenu("")
         ChannelsAfter = (ChannelsShown / 2)-1;
     }
 
-    if( ReloadFilters )
+    int chan_edited = Channels.BeingEdited();
+    syslog(LOG_ERR, "neutrinoepg chan_edited: %d", chan_edited);
+   
+    if( ReloadFilters || chan_edited )
     {
+        clock_t begin = clock();
+        clock_t end = clock();
         ReloadFilters = false;
+
+        // Count the groups and channels
+        int GroupCount = 0;
+        for(cChannel *Channel = Channels.First(); Channel; Channel = Channels.Next(Channel))
+        {
+            if( Channel->GroupSep() )
+                GroupCount++;
+        }
+        MaxGroup = GroupCount;
+
+        if( !Channels.First()->GroupSep() )
+            MaxGroup++;
+
+        if( GroupIndex != NULL )
+            delete[] GroupIndex;
+        if( CurrentGroupChannel != NULL )
+            delete[] CurrentGroupChannel;
+        if( FirstGroupChannel != NULL )
+            delete[] FirstGroupChannel;
+        if( LastGroupChannel != NULL )
+            delete[] LastGroupChannel;
+
+        // store max group count and add a little reserve
+        GroupIndex = new int[MaxGroup+1];
+        CurrentGroupChannel = new int[MaxGroup+1];
+        FirstGroupChannel = new int[MaxGroup+1];
+        LastGroupChannel = new int[MaxGroup+1];
+
         for( int i = 0; i < MaxGroup; i++)
         {
             CurrentGroupChannel[i] = -1;
             FirstGroupChannel[i] = -1;
             LastGroupChannel[i] = -1;
         }
+
+        int index = 0;
+        if( FirstChannelsHasGroup() == false )
+        {
+            GroupIndex[0] = -1;
+            index = 1;
+        }
+        for( cChannel *Channel = Channels.First(); Channel; Channel = Channels.Next(Channel) )
+        {
+            if( Channel->GroupSep() )
+            {
+                GroupIndex[index] = Channel->Index();
+                index++;
+            }
+        }
+
+        end = clock();
+        for( int Group = 0; Group < MaxGroup; Group++)
+        {
+            if( CurrentGroupChannel[Group] == -1 )
+            {
+                CurrentGroupChannel[Group] = GetFirstChannelOfGroup(Group);
+            }
+            if( FirstGroupChannel[Group] == -1 )
+            {
+                FirstGroupChannel[Group] = GetFirstChannelOfGroup(Group);
+            }
+            if( LastGroupChannel[Group] == -1 )
+            {
+                LastGroupChannel[Group] = GetLastChannelOfGroup(Group);
+            }
+            end = clock();
+        }
+        end = clock();
+        syslog(LOG_ERR, "neutrinoepg time last for get channels: %.3f s", diffclock(end, begin));
     }
 
     // what is the current watching channel?
@@ -92,22 +172,6 @@ myOsdMenu::myOsdMenu() : cOsdMenu("")
 
     //syslog(LOG_ERR, "neutrinoepg: Group %d Channel %d", CurrentGroup, CurrentGroupChannel[CurrentGroup]);
 
-    for( int Group = 0; Group < MaxGroup; Group++)
-    {
-        if( CurrentGroupChannel[Group] == -1 )
-        {
-            CurrentGroupChannel[Group] = GetFirstChannelOfGroup(Group);
-        }
-        if( FirstGroupChannel[Group] == -1 )
-        {
-            FirstGroupChannel[Group] = GetFirstChannelOfGroup(Group);
-        }
-        if( LastGroupChannel[Group] == -1 )
-        {
-            LastGroupChannel[Group] = GetLastChannelOfGroup(Group);
-        }
-    }
-
     LoadSchedules(0);
 }
 
@@ -117,35 +181,22 @@ myOsdMenu::~myOsdMenu()
 
 int myOsdMenu::GetGroupIndex(int Group)
 {
-    if( Group < 0 )
+    if( Group < 0 || Group > MaxGroup)
         return -1;
 
-    if( FirstChannelsHasGroup() == false && Group == 0)
-        return -1;
-
-    if( FirstChannelsHasGroup() == false )
-        Group--;
-
-    int GroupIndex = -1;
-    GroupIndex = GetFirstGroupIndex();
-    while( Group-- )
-        GroupIndex = Channels.GetNextGroup(GroupIndex);
-    
-    return GroupIndex;
+    return GroupIndex[Group];
 }
-int myOsdMenu::GetGroupByGroupIndex(int GroupIndex)
+int myOsdMenu::GetGroupByGroupIndex(int groupIndex)
 {
-    if( ChannelsHasGroup() == false || GroupIndex == -1 )
+    if( ChannelsHasGroup() == false || groupIndex == -1 )
         return 0;
 
-    int GroupIndexSearch = GetFirstGroupIndex();
-
-    int Group = 0;
-    for(; GroupIndexSearch != GroupIndex && GroupIndexSearch != -1; Group++)
-        GroupIndexSearch = Channels.GetNextGroup(GroupIndexSearch);
-    if( FirstChannelsHasGroup() == false )
-        return Group+1;
-    return Group;
+    for(int index = 0; index < MaxGroup; index++)
+    {
+        if( GroupIndex[index] == groupIndex )
+            return index;
+    }
+    return -1;
 }
 int myOsdMenu::GetGroupFromChannel(int ChanIndex)
 {

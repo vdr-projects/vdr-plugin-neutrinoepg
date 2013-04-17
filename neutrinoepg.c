@@ -99,31 +99,11 @@ bool cPluginNeutrinoEpg::Start(void)
 {
     Icons::InitCharSet();
 
-    // Count the groups and channels
-    int GroupCount = 0;
-    for(cChannel *Channel = Channels.First(); Channel; Channel = Channels.Next(Channel))
-    {
-        if( Channel->GroupSep() )
-            GroupCount++;
-    }
-    MaxGroup = GroupCount;
+    GroupIndex = NULL;
+    CurrentGroupChannel = NULL;
+    FirstGroupChannel = NULL;
+    LastGroupChannel = NULL;
 
-    if( !Channels.First()->GroupSep() )
-        MaxGroup++;
-
-    // store max group count and add a little reserve
-    CurrentGroupChannel = new int[MaxGroup+10];
-    FirstGroupChannel = new int[MaxGroup+10];
-    LastGroupChannel = new int[MaxGroup+10];
-
-    // initialize CurrentGroupChannel
-    // to store the current channel by the groups globaly
-    for( int i = 0; i < MaxGroup; i++)
-    {
-        CurrentGroupChannel[i] = -1;
-        FirstGroupChannel[i] = -1;
-        LastGroupChannel[i] = -1;
-    }
     ReloadFilters = true;
     
     return true;
@@ -131,9 +111,14 @@ bool cPluginNeutrinoEpg::Start(void)
 
 void cPluginNeutrinoEpg::Stop(void)
 {
-    delete[] CurrentGroupChannel;
-    delete[] FirstGroupChannel;
-    delete[] LastGroupChannel;
+    if( GroupIndex != NULL )
+        delete[] GroupIndex;
+    if( CurrentGroupChannel != NULL )
+        delete[] CurrentGroupChannel;
+    if( FirstGroupChannel != NULL )
+        delete[] FirstGroupChannel;
+    if( LastGroupChannel != NULL )
+        delete[] LastGroupChannel;
 }
 
 void cPluginNeutrinoEpg::Housekeeping(void)
@@ -142,6 +127,8 @@ void cPluginNeutrinoEpg::Housekeeping(void)
 
 cOsdObject *cPluginNeutrinoEpg::MainMenuAction(void)
 {
+    syslog(LOG_ERR, "neutrinoepg MainMenuAction");
+    
     return new myOsdMenu;
 }
 
