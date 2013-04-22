@@ -183,15 +183,72 @@ eOSState myMenuEvent::ProcessKey(eKeys Key)
             case kUp:
             case kDown|k_Repeat:
             case kDown:
-            case kLeft|k_Repeat:
-            case kLeft:
-            case kRight|k_Repeat:
-            case kRight:
                 DisplayMenu()->Scroll(
                         NORMALKEY(Key) == kUp   || NORMALKEY(Key) == kLeft,
                         NORMALKEY(Key) == kLeft ||  NORMALKEY(Key) == kRight);
                 cStatus::MsgOsdTextItem(NULL, NORMALKEY(Key) == kUp);
                 return osContinue;
+            case kLeft:
+            {
+                // previous event
+                cSchedulesLock schedulesLock;
+                const cSchedules *schedules;
+                schedules = cSchedules::Schedules(schedulesLock);
+                const cSchedule *Schedule = schedules->GetSchedule( channel->GetChannelID() );
+
+                if(Schedule)
+                {
+                    // do not go before first schedule
+                    if( event == Schedule->Events()->First() )
+                        break;
+                    
+                    const cEvent *prev = NULL, *e = NULL;
+                    for( e = Schedule->Events()->First(); e; e = Schedule->Events()->Next(e) )
+                    {
+                        if( e == event )
+                            break;
+                        prev = e;
+                    }
+                    if( prev != e )
+                        event = prev;
+                    else
+                        event = NULL;
+
+                    Display();
+                }
+                
+                return osContinue;
+            }
+            case kRight:
+            {
+                // next event
+                cSchedulesLock schedulesLock;
+                const cSchedules *schedules;
+                schedules = cSchedules::Schedules(schedulesLock);
+                const cSchedule *Schedule = schedules->GetSchedule( channel->GetChannelID() );
+                if(Schedule)
+                {
+                    const cEvent *next, *e = NULL;
+                    for( e = Schedule->Events()->First(); e; e = Schedule->Events()->Next(e) )
+                    {
+                        if( e == event )
+                            break;
+                    }
+                    if( e )
+                    {
+                        next = Schedule->Events()->Next(e);
+                        if( next )
+                            event = next;
+                        else
+                            event = NULL;
+                    }
+                    else
+                        event = NULL;
+               
+                    Display();
+                }
+                return osContinue;
+            }
             default:
                 break;
         }
