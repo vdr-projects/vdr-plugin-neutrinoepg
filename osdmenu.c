@@ -67,10 +67,6 @@ myOsdMenu::myOsdMenu() : cOsdMenu("")
         ChannelsAfter = (ChannelsShown / 2)-1;
     }
 
-        clock_t begin = clock();
-        clock_t end = clock();
-        ReloadFilters = false;
-
         // Count the groups and channels
         int GroupCount = 0;
         for(cChannel *Channel = Channels.First(); Channel; Channel = Channels.Next(Channel))
@@ -83,16 +79,20 @@ myOsdMenu::myOsdMenu() : cOsdMenu("")
         if( !Channels.First()->GroupSep() )
             MaxGroup++;
 
+        //syslog(LOG_ERR, "neutrinoepg: MaxGroup %d", MaxGroup);
+        
         // Hide Groups?
         if( HideGroupsAt > MaxGroup )
             HideGroupsAt = MaxGroup;
-        if( HideGroupsAt <= 1 )
+        if( HideGroupsAt < 1 )
             HideGroupsAt = 0;
-        if( HideGroupsAt > 1 )
+        if( HideGroupsAt > 0 )
         {
-            MaxGroup -= MaxGroup - HideGroupsAt + 1;
+            MaxGroup -= MaxGroup - HideGroupsAt;
         }
 
+        //syslog(LOG_ERR, "neutrinoepg: HideGroup %d MaxGroup %d", HideGroupsAt, MaxGroup);
+        
         if( GroupIndex != NULL )
             delete[] GroupIndex;
         if( CurrentGroupChannel != NULL )
@@ -130,7 +130,6 @@ myOsdMenu::myOsdMenu() : cOsdMenu("")
             }
         }
 
-        end = clock();
         for( int Group = 0; Group < MaxGroup; Group++)
         {
             if( CurrentGroupChannel[Group] == -1 )
@@ -145,7 +144,6 @@ myOsdMenu::myOsdMenu() : cOsdMenu("")
             {
                 LastGroupChannel[Group] = GetLastChannelOfGroup(Group);
             }
-            end = clock();
         }
 
     // what is the current watching channel?
@@ -160,8 +158,6 @@ myOsdMenu::myOsdMenu() : cOsdMenu("")
     // what is the current channel & group?
     CurrentGroup = GetGroupFromChannel( CurrentChannel->Index() );
     CurrentGroupChannel[CurrentGroup] = CurrentChannel->Index();
-
-    //syslog(LOG_ERR, "neutrinoepg: Group %d Channel %d", CurrentGroup, CurrentGroupChannel[CurrentGroup]);
 
     LoadSchedules(0);
 }
@@ -187,7 +183,7 @@ int myOsdMenu::GetGroupByGroupIndex(int groupIndex)
         if( GroupIndex[index] == groupIndex )
             return index;
     }
-    return -1;
+    return 0;
 }
 int myOsdMenu::GetGroupFromChannel(int ChanIndex)
 {
@@ -441,12 +437,25 @@ void myOsdMenu::SetMyTitle(void)
                 CurrentGroup + 1, MaxGroup, tr("without group"), trVDR("What's on now?"));
     } else
     {
+        int groupindex = GetGroupIndex(CurrentGroup);
         if( next )
-            asprintf(&buffer, "%d/%d %s - %s", 
-                CurrentGroup + 1, MaxGroup, Channels.Get( GetGroupIndex(CurrentGroup) )->Name(), *DayDateTime(t));
+        {
+            if( groupindex == -1 )
+                asprintf(&buffer, "%d/%d %s - %s", 
+                    CurrentGroup + 1, MaxGroup, "no group", *DayDateTime(t));
+            else
+                asprintf(&buffer, "%d/%d %s - %s", 
+                    CurrentGroup + 1, MaxGroup, Channels.Get( groupindex )->Name(), *DayDateTime(t));
+        }
         else
-            asprintf(&buffer, "%d/%d %s - %s", 
-                CurrentGroup + 1, MaxGroup, Channels.Get( GetGroupIndex(CurrentGroup) )->Name(), trVDR("What's on now?"));
+        {
+            if( groupindex == -1 )
+                asprintf(&buffer, "%d/%d %s - %s", 
+                    CurrentGroup + 1, MaxGroup, "no group", trVDR("What's on now?"));
+            else
+                asprintf(&buffer, "%d/%d %s - %s", 
+                    CurrentGroup + 1, MaxGroup, Channels.Get( groupindex )->Name(), trVDR("What's on now?"));
+        }
     }
     SetTitle(buffer);
     free(buffer);
@@ -751,6 +760,8 @@ eOSState myOsdMenu::ProcessKey(eKeys Key)
                 }
                 case kLeft|k_Repeat:
                 case kLeft:
+                    if( isMenuEvent )
+                        return osContinue;
                     if( switchgroupkey == 1 ) // if we not switch groups by left/right we let do vdr the rest (page up)
                     {
                         if( CurrentGroupChannel[CurrentGroup] == FirstGroupChannel[CurrentGroup] )
@@ -784,6 +795,8 @@ eOSState myOsdMenu::ProcessKey(eKeys Key)
                     break;
                 case kRight|k_Repeat:
                 case kRight:
+                    if( isMenuEvent )
+                        return osContinue;
                     if( switchgroupkey == 1 ) // if we not switch groups by left/right we let do vdr the rest (page down)
                     {
                         if( CurrentGroupChannel[CurrentGroup] == LastGroupChannel[CurrentGroup] )

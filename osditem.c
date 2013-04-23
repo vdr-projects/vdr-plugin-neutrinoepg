@@ -36,7 +36,7 @@ void Icons::InitCharSet()
 }
 
 // --- myWhatsOnItem ----------------------------------------------------------
-myOsdItem::myOsdItem(const cEvent *Event,cChannel *Channel,bool Next)
+myOsdItem::myOsdItem(const cEvent *Event, cChannel *Channel, bool Next)
 {
     event = Event;
     channel = Channel;
