@@ -24,10 +24,11 @@ int HideGroupsAt = 0;
 class myMenuSetup : public cMenuSetupPage
 {
     private:
-        const char *SwitchGroupKeyTexts[2];
-        const char *SitchWithOKTexts[2];
-        const char **HideGroupsAtTexts;
-        int GroupCount;
+        int menuGroupCount;
+        cStringList SwitchGroupKeyTexts;
+        cStringList SwitchWithOKTexts;
+        cStringList HideGroupsAtTexts;
+
     protected:
         virtual void Store()
         {
@@ -48,30 +49,37 @@ class myMenuSetup : public cMenuSetupPage
     public:
         ~myMenuSetup()
         {
-            for(int i = 0; i < GroupCount; i++)
-                delete[] HideGroupsAtTexts[i];
-            delete[] HideGroupsAtTexts;
         }
         myMenuSetup()
         {
-            GroupCount = 0;
             int index = 0;
             bool HideFirst = true;
+
+            menuGroupCount = 0;
+            
+            SwitchGroupKeyTexts.Append( strdup( tr("left/right")) );
+            SwitchGroupKeyTexts.Append( strdup( tr("prev/next")) );
+
+            SwitchWithOKTexts.Append( strdup( tr("Blue")) );
+            SwitchWithOKTexts.Append( strdup( tr("Ok")) );
             
             for(cChannel *Channel = Channels.First(); Channel; Channel = Channels.Next(Channel))
             {
                 if( Channel->GroupSep() )
-                    GroupCount++;
+                    menuGroupCount++;
             }
+
+            if( HideGroupsAt < 0 || HideGroupsAt >= menuGroupCount )
+                HideGroupsAt = 0;
+
             // add one group if the first is not one
             if( !Channels.First()->GroupSep() )
             {
-                GroupCount++;
+                menuGroupCount++;
                 HideFirst = false;
-                HideGroupsAtTexts[index] = tr("no filter");
+                HideGroupsAtTexts.Append( strdup( tr("no filter")) );
                 index++;
             }
-            HideGroupsAtTexts = new const char*[GroupCount];
             
             for(cChannel *Channel = Channels.First(); Channel; Channel = Channels.Next(Channel))
             {
@@ -80,36 +88,29 @@ class myMenuSetup : public cMenuSetupPage
                     if( HideFirst )
                     {
                         HideFirst = false;
-                        HideGroupsAtTexts[index] = new char( strlen(tr("no filter")) + 1 );
-                        strcpy((char *)HideGroupsAtTexts[index], (char *)tr("no filter"));
+                        HideGroupsAtTexts.Append( strdup( tr("no filter")) );
                         index++;
                         continue;
                     }
-                    HideGroupsAtTexts[index] = new char( strlen(Channel->Name()) + 1 );
-                    strcpy((char *)HideGroupsAtTexts[index], (char *)Channel->Name());
+                    HideGroupsAtTexts.Append( strdup(Channel->Name()) );
                     index++;
                 }
             }
 
-            SwitchGroupKeyTexts[0] = tr("left/right");
-            SwitchGroupKeyTexts[1] = tr("prev/next");
-
-            SitchWithOKTexts[0] = tr("Blue");
-            SitchWithOKTexts[1] = tr("Ok");
 
             Add(new cOsdItem(tr("Behavior"), osUnknown, false));
             Add(new cMenuEditIntItem(tr("Step width (min)"), &Step));
             Add(new cMenuEditTimeItem(tr("Favorite time"), &bookmark));
-            Add(new cMenuEditStraItem(tr("Key to switch channel"), &switchwithok, 2, SitchWithOKTexts));
+            Add(new cMenuEditStraItem(tr("Key to switch channel"), &switchwithok, SwitchWithOKTexts.Size(), &SwitchWithOKTexts[0]));
             Add(new cMenuEditBoolItem(tr("Selected item centered"), &middlemenuentry));
-            Add(new cMenuEditStraItem(tr("Keys to switch channel group"), &switchgroupkey, 2, SwitchGroupKeyTexts));
+            Add(new cMenuEditStraItem(tr("Keys to switch channel group"), &switchgroupkey, SwitchGroupKeyTexts.Size(), &SwitchGroupKeyTexts[0]));
 
             Add(new cOsdItem(tr("Appearance"), osUnknown, false));
             Add(new cMenuEditBoolItem(tr("Hide main menu entry"), &hidemainmenu));
             Add(new cMenuEditIntItem(tr("Channel name width"), &ChannelNameWidth));
             Add(new cMenuEditBoolItem(tr("Keep display after switching"), &keeposd));
             Add(new cMenuEditBoolItem(tr("Show channel numbers"), &showchannelnumbers));
-            Add(new cMenuEditStraItem(tr("Hide Groups at"), &HideGroupsAt, GroupCount, HideGroupsAtTexts));
+            Add(new cMenuEditStraItem(tr("Hide Groups at"), &HideGroupsAt, HideGroupsAtTexts.Size(), &HideGroupsAtTexts[0]));
             Add(new cMenuEditBoolItem(tr("Hide encrypted channels"), &hideencryptedchannels));
             Add(new cMenuEditBoolItem(tr("Hide radio channels"), &hideradiochannels));
             Add(new cMenuEditBoolItem(tr("Progress as percent"), &percentprogress));
@@ -169,14 +170,12 @@ void cPluginNeutrinoEpg::Housekeeping(void)
 
 cOsdObject *cPluginNeutrinoEpg::MainMenuAction(void)
 {
-    syslog(LOG_ERR, "neutrinoepg MainMenuAction");
-    
     return new myOsdMenu;
 }
 
 cMenuSetupPage *cPluginNeutrinoEpg::SetupMenu(void)
 {
-    return new myMenuSetup;
+    return new myMenuSetup();
 }
 
 bool cPluginNeutrinoEpg::SetupParse(const char *Name, const char *Value)
