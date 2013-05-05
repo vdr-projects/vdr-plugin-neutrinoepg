@@ -1,6 +1,6 @@
 VDR Plugin 'neutrinoepg' Revision History
 
-2013-XX-XX: Version 0.3.4
+2013-05-05: Version 0.3.4
 - [Fix] Bufferoverflow bei Tastendruck 0
 - [Feature] Beschleunigter Start des Plugin, besonders bei groﬂen channels.conf mit vielen Gruppen
 - [Feature] Neuer Parameter 'HideGroupsAt' zum ausblenden aller Gruppen ab dieser Gruppe
