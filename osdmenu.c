@@ -9,6 +9,8 @@ int *CurrentGroupChannel;
 int *FirstGroupChannel;
 int *LastGroupChannel;
 
+int LastMaxGroup;
+
 int ChannelsShown;
 int ChannelsBefore;
 int ChannelsAfter;
@@ -67,85 +69,81 @@ myOsdMenu::myOsdMenu() : cOsdMenu("")
         ChannelsAfter = (ChannelsShown / 2)-1;
     }
 
-        // Count the groups and channels
-        int GroupCount = 0;
-        for(cChannel *Channel = Channels.First(); Channel; Channel = Channels.Next(Channel))
-        {
-            if( Channel->GroupSep() )
-                GroupCount++;
-        }
-        MaxGroup = GroupCount;
+    // Count the groups and channels
+    int GroupCount = 0;
+    for(cChannel *Channel = Channels.First(); Channel; Channel = Channels.Next(Channel))
+    {
+        if( Channel->GroupSep() )
+            GroupCount++;
+    }
+    MaxGroup = GroupCount;
 
-        if( !Channels.First()->GroupSep() )
-            MaxGroup++;
-
-        //syslog(LOG_ERR, "neutrinoepg: MaxGroup %d", MaxGroup);
+    if( !Channels.First()->GroupSep() )
+        MaxGroup++;
+    //syslog(LOG_ERR, "neutrinoepg: MaxGroup %d", MaxGroup);
+    // Hide Groups?
+    if( HideGroupsAt > MaxGroup )
+        HideGroupsAt = MaxGroup;
+    if( HideGroupsAt < 1 )
+        HideGroupsAt = 0;
+    if( HideGroupsAt > 0 )
+        MaxGroup -= MaxGroup - HideGroupsAt;
+    
+    // test for different group count
+    if( LastMaxGroup != MaxGroup )
+    {
+    //:(LOG_ERR, "neutrinoepg: HideGroup %d MaxGroup %d", HideGroupsAt, MaxGroup);
         
-        // Hide Groups?
-        if( HideGroupsAt > MaxGroup )
-            HideGroupsAt = MaxGroup;
-        if( HideGroupsAt < 1 )
-            HideGroupsAt = 0;
-        if( HideGroupsAt > 0 )
+    if( GroupIndex != NULL )
+        delete[] GroupIndex;
+    if( CurrentGroupChannel != NULL )
+        delete[] CurrentGroupChannel;
+    if( FirstGroupChannel != NULL )
+        delete[] FirstGroupChannel;
+    if( LastGroupChannel != NULL )
+        delete[] LastGroupChannel;
+
+    // store max group count and add a little reserve
+    GroupIndex = new int[MaxGroup+1];
+    CurrentGroupChannel = new int[MaxGroup+1];
+    FirstGroupChannel = new int[MaxGroup+1];
+    LastGroupChannel = new int[MaxGroup+1];
+
+    for( int i = 0; i < MaxGroup; i++)
+    {
+        CurrentGroupChannel[i] = -1;
+        FirstGroupChannel[i] = -1;
+        LastGroupChannel[i] = -1;
+    }
+
+    int index = 0;
+    if( FirstChannelsHasGroup() == false )
+    {
+        GroupIndex[0] = -1;
+        index = 1;
+    }
+    for( cChannel *Channel = Channels.First(); Channel && index < MaxGroup; Channel = Channels.Next(Channel) )
+    {
+        if( Channel->GroupSep() )
         {
-            MaxGroup -= MaxGroup - HideGroupsAt;
+            GroupIndex[index] = Channel->Index();
+            index++;
         }
+    }
 
-        //syslog(LOG_ERR, "neutrinoepg: HideGroup %d MaxGroup %d", HideGroupsAt, MaxGroup);
-        
-        if( GroupIndex != NULL )
-            delete[] GroupIndex;
-        if( CurrentGroupChannel != NULL )
-            delete[] CurrentGroupChannel;
-        if( FirstGroupChannel != NULL )
-            delete[] FirstGroupChannel;
-        if( LastGroupChannel != NULL )
-            delete[] LastGroupChannel;
+    for( int Group = 0; Group < MaxGroup; Group++)
+    {
+        if( CurrentGroupChannel[Group] == -1 )
+            CurrentGroupChannel[Group] = GetFirstChannelOfGroup(Group);
+        if( FirstGroupChannel[Group] == -1 )
+            FirstGroupChannel[Group] = GetFirstChannelOfGroup(Group);
+        if( LastGroupChannel[Group] == -1 )
+            LastGroupChannel[Group] = GetLastChannelOfGroup(Group);
+    }
 
-        // store max group count and add a little reserve
-        GroupIndex = new int[MaxGroup+1];
-        CurrentGroupChannel = new int[MaxGroup+1];
-        FirstGroupChannel = new int[MaxGroup+1];
-        LastGroupChannel = new int[MaxGroup+1];
-
-        for( int i = 0; i < MaxGroup; i++)
-        {
-            CurrentGroupChannel[i] = -1;
-            FirstGroupChannel[i] = -1;
-            LastGroupChannel[i] = -1;
-        }
-
-        int index = 0;
-        if( FirstChannelsHasGroup() == false )
-        {
-            GroupIndex[0] = -1;
-            index = 1;
-        }
-        for( cChannel *Channel = Channels.First(); Channel && index < MaxGroup; Channel = Channels.Next(Channel) )
-        {
-            if( Channel->GroupSep() )
-            {
-                GroupIndex[index] = Channel->Index();
-                index++;
-            }
-        }
-
-        for( int Group = 0; Group < MaxGroup; Group++)
-        {
-            if( CurrentGroupChannel[Group] == -1 )
-            {
-                CurrentGroupChannel[Group] = GetFirstChannelOfGroup(Group);
-            }
-            if( FirstGroupChannel[Group] == -1 )
-            {
-                FirstGroupChannel[Group] = GetFirstChannelOfGroup(Group);
-            }
-            if( LastGroupChannel[Group] == -1 )
-            {
-                LastGroupChannel[Group] = GetLastChannelOfGroup(Group);
-            }
-        }
-
+    LastMaxGroup = MaxGroup;
+    
+    }
     // what is the current watching channel?
     int CurrentChannelNr = cDevice::CurrentChannel();
     cChannel *CurrentChannel = Channels.GetByNumber(CurrentChannelNr);

@@ -1,5 +1,8 @@
 VDR Plugin 'neutrinoepg' Revision History
 
+2013-XX-XX: Version 0.3.5
+- [Fix] Speicherung der letzten Kanalauswahl in den Gruppen
+
 2013-05-05: Version 0.3.4
 - [Fix] Bufferoverflow bei Tastendruck 0
 - [Feature] Beschleunigter Start des Plugin, besonders bei groﬂen channels.conf mit vielen Gruppen
