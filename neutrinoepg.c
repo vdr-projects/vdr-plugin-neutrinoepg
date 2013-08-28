@@ -14,7 +14,7 @@ int hideencryptedchannels = 0;
 int hideradiochannels = 0;
 int switchwithok = 1;
 int hidemainmenu = false;
-int percentprogress = false;
+int progressbar = false;
 int middlemenuentry = false;
 int switchgroupkey = 0;
 int ChannelNameWidth = 15;
@@ -28,6 +28,7 @@ class myMenuSetup : public cMenuSetupPage
         cStringList SwitchGroupKeyTexts;
         cStringList SwitchWithOKTexts;
         cStringList HideGroupsAtTexts;
+        cStringList ProgressBarTexts;
 
     protected:
         virtual void Store()
@@ -40,7 +41,7 @@ class myMenuSetup : public cMenuSetupPage
             SetupStore("hideradiochannels", hideradiochannels);
             SetupStore("showchannelnumbers", showchannelnumbers);
             SetupStore("switchwithok", switchwithok);
-            SetupStore("percentprogress", percentprogress);
+            SetupStore("progressbar", progressbar);
             SetupStore("middlemenuentry", middlemenuentry);
             SetupStore("switchgroupkey", switchgroupkey);
             SetupStore("ChannelNameWidth", ChannelNameWidth);
@@ -63,6 +64,10 @@ class myMenuSetup : public cMenuSetupPage
             SwitchWithOKTexts.Append( strdup( tr("Blue")) );
             SwitchWithOKTexts.Append( strdup( tr("Ok")) );
             
+            ProgressBarTexts.Append( strdup( tr("VDRSymbols")) );
+            ProgressBarTexts.Append( strdup( tr("Text")) );
+            ProgressBarTexts.Append( strdup( tr("Percent")) );
+
             for(cChannel *Channel = Channels.First(); Channel; Channel = Channels.Next(Channel))
             {
                 if( Channel->GroupSep() )
@@ -113,7 +118,7 @@ class myMenuSetup : public cMenuSetupPage
             Add(new cMenuEditStraItem(tr("Hide Groups at"), &HideGroupsAt, HideGroupsAtTexts.Size(), &HideGroupsAtTexts[0]));
             Add(new cMenuEditBoolItem(tr("Hide encrypted channels"), &hideencryptedchannels));
             Add(new cMenuEditBoolItem(tr("Hide radio channels"), &hideradiochannels));
-            Add(new cMenuEditBoolItem(tr("Progress as percent"), &percentprogress));
+            Add(new cMenuEditStraItem(tr("Progressbar modus"), &progressbar, ProgressBarTexts.Size(), &ProgressBarTexts[0]));
         }
 };
 
@@ -196,8 +201,8 @@ bool cPluginNeutrinoEpg::SetupParse(const char *Name, const char *Value)
         hideradiochannels = atoi(Value);
     else if(!strcmp("switchwithok", Name))
         switchwithok = atoi(Value);
-    else if(!strcmp("percentprogress", Name))
-        percentprogress = atoi(Value);
+    else if(!strcmp("progressbar", Name))
+        progressbar = atoi(Value);
     else if(!strcmp("middlemenuentry", Name))
         middlemenuentry = atoi(Value);
     else if(!strcmp("ChannelNameWidth", Name))

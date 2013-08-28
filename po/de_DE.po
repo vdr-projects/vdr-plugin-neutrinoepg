@@ -7,7 +7,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: Neutrinoepg-Plugin 0.3.3\n"
 "Report-Msgid-Bugs-To: <see README>\n"
-"POT-Creation-Date: 2013-05-05 14:23+0200\n"
+"POT-Creation-Date: 2013-08-28 21:21+0200\n"
 "PO-Revision-Date: 2008-03-30 19:58+0200\n"
 "Last-Translator: \n"
 "Language-Team: <nordlicht@martins-kabuff.de>\n"
@@ -42,6 +42,15 @@ msgstr "Blau"
 
 msgid "Ok"
 msgstr "Ok"
+
+msgid "VDRSymbols"
+msgstr "VDRSymbols"
+
+msgid "Text"
+msgstr "Text"
+
+msgid "Percent"
+msgstr "Prozent"
 
 msgid "no filter"
 msgstr "<kein filter>"
@@ -88,11 +97,14 @@ msgstr "Verschlüsselte Kanäle ausblenden"
 msgid "Hide radio channels"
 msgstr "Radio-Kanäle ausblenden"
 
-msgid "Progress as percent"
-msgstr "Fortschrittsanzeige als Prozent"
+msgid "Progressbar modus"
+msgstr "Progressbar Modus"
 
 msgid "without group"
 msgstr "ohne Gruppe"
 
 msgid "Jump to"
 msgstr "Springe zu"
+
+#~ msgid "Progress as percent"
+#~ msgstr "Fortschrittsanzeige als Prozent"

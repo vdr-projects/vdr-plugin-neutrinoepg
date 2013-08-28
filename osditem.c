@@ -64,7 +64,7 @@ void myOsdItem::Set()
 
     if(event)
     {
-        if( percentprogress == 1 )
+        if( progressbar == 2 )
         {
             // calculate progress bar
             float progress = (int)roundf( (float)(time(NULL) - event->StartTime()) / (float) (event->Duration()) * 100.0);
@@ -76,12 +76,12 @@ void myOsdItem::Set()
             asprintf(&strProgress, "%3.0f%%", progress);
 
             if(showchannelnumbers)
-                asprintf(&buffer,"%s\t%d\t%-10s\t %s\t%s", m, channel->Number(), channel->ShortName(true),
+                asprintf(&buffer,"%s\t%d\t%-10s\t%s\t %s", m, channel->Number(), channel->ShortName(true),
                         (!(event->RunningStatus()==4)&&next) ? *event->GetTimeString() : strProgress, event->Title());
             else
-                asprintf(&buffer,"%s\t%-10s\t %s\t%s", m, channel->ShortName(true),
+                asprintf(&buffer,"%s\t%-10s\t%s\t %s", m, channel->ShortName(true),
                         (!(event->RunningStatus()==4)&&next) ? *event->GetTimeString() : strProgress,event->Title());
-        } else
+        } else if( progressbar == 0 )
         {
             // calculate progress bar
             float progress = (int)roundf( (float)(time(NULL) - event->StartTime()) / (float) (event->Duration()) * 10.0);
@@ -102,11 +102,31 @@ void myOsdItem::Set()
             ProgressBar += Icons::ProgressEnd();
 
             if(showchannelnumbers)
-                asprintf(&buffer,"%s\t%d\t%-10s\t %s\t%s", m, channel->Number(), channel->ShortName(true),
+                asprintf(&buffer,"%s\t%d\t%-10s\t%s\t %s", m, channel->Number(), channel->ShortName(true),
                         (!(event->RunningStatus()==4)&&next) ? *event->GetTimeString() : ProgressBar.c_str(), event->Title());
             else
-                asprintf(&buffer,"%s\t%-10s\t %s\t%s", m, channel->ShortName(true),
+                asprintf(&buffer,"%s\t%-10s\t%s\t %s", m, channel->ShortName(true),
                         (!(event->RunningStatus()==4)&&next) ? *event->GetTimeString() : ProgressBar.c_str(), event->Title());
+        } else {
+            char szProgress[20] = "";
+            char szProgressPart[25] = "";
+            int progress = (int)roundf( (float)(time(NULL) - event->StartTime()) / (float) (event->Duration()) * 8.0);
+            progress = min(8, max(0, progress));
+
+            for(int i = 0; i < 8; i++) {
+                if( i < progress )
+                    szProgress[i] = '|';
+                else
+                    szProgress[i] = ' ';
+            }
+            szProgress[progress] = '\0';
+            sprintf(szProgressPart, "%c%-8s%c", '[', szProgress, ']');
+            if(showchannelnumbers)
+                asprintf(&buffer,"%s\t%d\t%-10s\t%s\t %s", m, channel->Number(), channel->ShortName(true),
+                        (!(event->RunningStatus()==4)&&next) ? *event->GetTimeString() : szProgressPart, event->Title());
+            else
+                asprintf(&buffer,"%s\t%-10s\t%s\t %s", m, channel->ShortName(true),
+                        (!(event->RunningStatus()==4)&&next) ? *event->GetTimeString() : szProgressPart, event->Title());
         }
     }
     else

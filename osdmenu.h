@@ -9,6 +9,7 @@ extern int *GroupIndex;
 extern int *CurrentGroupChannel;
 extern int *FirstGroupChannel;
 extern int *LastGroupChannel;
+extern int LastMaxGroup;
 
 // --- myMenuWhatsOn ----------------------------------------------------------
 class myOsdMenu : public cOsdMenu

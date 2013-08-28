@@ -23,7 +23,7 @@ extern int hideencryptedchannels;
 extern int showchannelnumbers;
 extern int hideradiochannels;
 extern int switchwithok;
-extern int percentprogress;
+extern int progressbar;
 extern int middlemenuentry;
 extern int switchgroupkey;
 extern int ChannelNameWidth;
