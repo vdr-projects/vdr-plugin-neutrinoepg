@@ -1,5 +1,8 @@
 VDR Plugin 'neutrinoepg' Revision History
 
+2013-21-09: Versioin 0.3.6
+- [Feature] Unterstützung für Textbalken bei der ProgressBar
+
 2013-29-07: Version 0.3.5
 - [Fix] Speicherung der letzten Kanalauswahl in den Gruppen
 

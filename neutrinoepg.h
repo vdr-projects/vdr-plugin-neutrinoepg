@@ -29,7 +29,7 @@ extern int switchgroupkey;
 extern int ChannelNameWidth;
 extern int HideGroupsAt;
 
-static const char *VERSION        = "0.3.5";
+static const char *VERSION        = "0.3.6";
 static const char *DESCRIPTION    = "View the EPG like neutrino does";
 static const char *MAINMENUENTRY  = "Neutrino EPG";
 

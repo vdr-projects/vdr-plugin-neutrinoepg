@@ -17,22 +17,22 @@ Thanks to:
 
 
 Neutrinoepg
-Neutrinoepg ist eine Ã¼bersichtliche EPG-Anzeige fÃ¼r den VDR.
+Neutrinoepg ist eine Übersichtliche EPG-Anzeige für den VDR.
 
-Es bietet eine Ãœbersicht Ã¼ber die Sender und die laufende Sendung mit Sendungsfortschrittsanzeige (wie lange lÃ¤uft die Sendung schon).
-Somit hat man einen schnellen Ãœberblick was, wie lange, wo lÃ¤uft.
+Es bietet eine Übersicht über die Sender und die laufende Sendung mit Sendungsfortschrittsanzeige (wie lange läuft die Sendung schon).
+Somit hat man einen schnellen Überblick was, wie lange, wo läuft.
 
-Weiterhin kann man mittels der Farbtasten Gelb/GrÃ¼n die Zeit umschalten um zu sehen was frÃ¼her oder spÃ¤ter auf allen Sendern lÃ¤uft.
-Zu einer Sendung kann die EPG-Info (Beschreibung der Sendung) angezeigt werden und fÃ¼r eine Sendung kann ein Timer erstellt werden.
+Weiterhin kann man mittels der Farbtasten Gelb/Grün die Zeit umschalten um zu sehen was früher oder spÃ¤ter auf allen Sendern läuft.
+Zu einer Sendung kann die EPG-Info (Beschreibung der Sendung) angezeigt werden und für eine Sendung kann ein Timer erstellt werden.
 
-Ein zentraler Punkt des Plugins ist es, das die KanÃ¤le in ihren Gruppen aufgeteilt sind und nur KanÃ¤le einer Gruppe angezeigt werden.
-Dabei steht die Kanalgruppe in der Ãœberschrift. Zwischen den Kanalgruppen kann mittels links/rechts oder prev/next (je nach Einstellung)
+Ein zentraler Punkt des Plugins ist es, das die Kanäle in ihren Gruppen aufgeteilt sind und nur Kanäle einer Gruppe angezeigt werden.
+Dabei steht die Kanalgruppe in der Überschrift. Zwischen den Kanalgruppen kann mittels links/rechts oder prev/next (je nach Einstellung)
 gewechselt werden.
-Es wird sich die letzte Auswahl in jeder Gruppe gemerkt sodass schnell zwischen den Kanalgruppen und KanÃ¤len gewechselt werden kann.
+Es wird sich die letzte Auswahl in jeder Gruppe gemerkt sodass schnell zwischen den Kanalgruppen und Kanälen gewechselt werden kann.
 
 Plugin-Einstellungen
 --- Verhalten ---
-- Sprungweite (min): wie viele Minuten soll bei den Farbtasten Gelb/GrÃ¼n die Zeit vor oder zurÃ¼ck gesprungen werden (Format: mm).
+- Sprungweite (min): wie viele Minuten soll bei den Farbtasten Gelb/Grün die Zeit vor oder zurück gesprungen werden (Format: mm).
   Default: 30 (30 min)
 - Springe zu: Zeitstempel wohin mit der roten Farbtaste gesprungen werden kann (Format: hhmm).
   Default: 2015 (20:15Uhr)
@@ -40,28 +40,28 @@ Plugin-Einstellungen
   Wenn Ja wird mit der OK-Taste der Kanal umgeschaltet, mit der Farbtaste blau kann die EPG-Info angezeigt werden.
   Wenn Nein wird mit der OK-Taste die EPG-Info angezeigt, mit der Farbtaste blau kann der Kanal umgeschaltet werden.
   Default: Ja
-- ausgewÃ¤hlten MenÃ¼eintrag mittig: Soll der ausgewÃ¤hlte MenÃ¼eintrag immer in der Mitte des Bildschirms sein?
+- ausgewählten Menüeintrag mittig: Soll der ausgewählte MenÃ¼eintrag immer in der Mitte des Bildschirms sein?
   Diese Einstellung hat Auswirkungen auf die Anzeige.
-  Wenn Aktiv gibt es keinen Scrollbalken auch wenn viele EintrÃ¤ge fÃ¼r eine Kanalgruppe vorhanden sind.
-  Des Weiteren ist es schwierig Ã¼ber mehrere EintrÃ¤ge mittels der hoch-/runter-Tasten zu scrollen in dem man die Taste gedrÃ¼ckt hÃ¤lt,
-  da die Anzeige erst aktualisiert wird wenn man die Taste loslÃ¤sst.
+  Wenn Aktiv gibt es keinen Scrollbalken auch wenn viele EintrÃ¤ge für eine Kanalgruppe vorhanden sind.
+  Des Weiteren ist es schwierig über mehrere Einträge mittels der hoch-/runter-Tasten zu scrollen in dem man die Taste gedrückt hÃ¤lt,
+  da die Anzeige erst aktualisiert wird wenn man die Taste loslässt.
   Default: Nein
 - Gruppenwechsel-Taste: mit welchen Tasten soll zwischen den Kanalgruppen gewechselt werden.
   Auswahl: "links/rechts" oder "prev/next".
-  Wenn links/rechts ausgewÃ¤hlt ist, kann mittels prev/next Seitenweise innerhalb der Liste geblÃ¤ttert werden.
-  Wenn prev/next ausgewÃ¤hlt ist kann mittels links/rects Seitenweise innerhalb der Liste geblÃ¤ttert werden.
+  Wenn links/rechts ausgewählt ist, kann mittels prev/next Seitenweise innerhalb der Liste geblättert werden.
+  Wenn prev/next ausgewählt ist kann mittels links/rects Seitenweise innerhalb der Liste geblättert werden.
   Default: links/rechts
 
 --- Erscheinungsbild ----
-- Eintrag im HauptmenÃ¼ verstecken: Soll ein Eintrag "Neutrinoepg" im HauptmenÃ¼ angezeigt werden?
+- Eintrag im Hauptmenü verstecken: Soll ein Eintrag "Neutrinoepg" im Hauptmenü angezeigt werden?
   Default: Nein
 - Anzeige nach Umschalten beibehalten: Soll die Anzeige nach dem Umschalten nicht beendet werden?
   Default: Nein
 - Kanalnummern anzeigen: Sollen in der ersten Spalte Kanalnummern angezeigt werden?
   Default: Ja
-- VerschlÃ¼sselte KanÃ¤le ausblenden: Sollen verschlÃ¼sselte KanÃ¤le ausgeblendet werden?
+- Verschlüsselte Kanäle ausblenden: Sollen verschlüsselte Kanäle ausgeblendet werden?
   Default: Nein
-- Radio-KanÃ¤le ausblenden: Sollen Radio-KanÃ¤le ausgeblendet werden?
+- Radio-Kanäle ausblenden: Sollen Radio-Kanäle ausgeblendet werden?
   Default: Nein
 - Fortschrittsanzeige als Prozent: Soll die Fortschrittsanzeige als Prozent angezeigt werden?
   Wenn Ja werden Prozentzahlen angezeigt. Wenn Nein wird eine Balkengrafik angezeigt.
@@ -79,7 +79,7 @@ cd /usr/src/vdr-2.0.0/
 make plugins
 sudo make install-plugins
 
-Fontinstallation fÃ¼r Balken-Fortschrittsanzeige:
+Fontinstallation für Balken-Fortschrittsanzeige:
 Im Ordner neutrinoepg/vdrsymbols/ gibt es die beiden Font-Dateien:
 VDRSymbolsSans.ttf
 VDRSymbolsSans-Bold.ttf
@@ -89,25 +89,25 @@ Unter Ubuntu ist dieser z.B. /usr/share/fonts/truetype/
 Also z.B. mit folgendem Befehl die VDR-Fonts kopieren
 sudo cp neutrinoepg/vdrsymbols/VDRSymbols* /usr/share/fonts/truetype/
 
-AnschlieÃŸend muss im VDR im HauptmenÃ¼ unter OSD der Font VDRSymbolsSans oder VDRSymbolsSans-Bold ausgewÃ¤lt werden.
+Anschließend muss im VDR im Hauptmenü unter OSD der Font VDRSymbolsSans oder VDRSymbolsSans-Bold ausgewält werden.
 
-Wer diese fonts nicht benutzen mÃ¶chte kann die Fortschrittsanzeige auch als Prozent anzeigen lassen. Dann mÃ¼ssen keine Fonts
-installiert und im VDR ausgewÃ¤hlt werden.
+Wer diese fonts nicht benutzen möchte kann die Fortschrittsanzeige auch als Prozent anzeigen lassen. Dann müssen keine Fonts
+installiert und im VDR ausgewählt werden.
 
 Tipps zum Plugin:
 
-1.) Plugin Ã¼ber Extrataste aufrufen:
-FÃ¼r einen schnellen Zugriff auf die EPG-Anzeige sollte das Plugin auf eine Extra-Taste der Fernbedienung gelegt werden.
-Dann muss das Plugin nicht erst Ã¼ber das MenÃ¼ aufgerufen werden. HierfÃ¼r einfach in der Datei "vdr-conf-dir/keymacros.conf"
-folgende Zeile einfÃ¼gen:
+1.) Plugin über Extrataste aufrufen:
+Für einen schnellen Zugriff auf die EPG-Anzeige sollte das Plugin auf eine Extra-Taste der Fernbedienung gelegt werden.
+Dann muss das Plugin nicht erst über das Menü aufgerufen werden. Hierfür einfach in der Datei "vdr-conf-dir/keymacros.conf"
+folgende Zeile einfügen:
 User1    @neutrinoepg
 
-FÃ¼r weitere Informationen bezÃ¼glich keymacros siehe Wiki: http://www.vdr-wiki.de/wiki/index.php/Keymacros.conf
-Dann kann der HauptmenÃ¼eintrag Ã¼ber die Einstellungen entfernt werden.
+Für weitere Informationen bezüglich keymacros siehe Wiki: http://www.vdr-wiki.de/wiki/index.php/Keymacros.conf
+Dann kann der Hauptmenüeintrag über die Einstellungen entfernt werden.
 
 2.) Aufteilung der KanÃ¤le und Kanalgruppen
 FÃ¼r das Beste Look&Feel in der EPG-Anzeige sollte die channels.conf ordentlich mit Kanalgruppen sortiert werden.
-Hier ist es am sinnvollsten wenn in einer Kanalgruppe nur so viele KanÃ¤le enthalten sind, wie auf einer Bildschirmseite passen.
+Hier ist es am sinnvollsten wenn in einer Kanalgruppe nur so viele Kanäle enthalten sind, wie auf einer Bildschirmseite passen.
 Dies ist allerdings von Skin zu Skin unterschiedlich und sollte entsprechend ausprobiert werden.
 Wenn die channels.conf entsprechend angepasst ist, kann schnell zwischen den Kanalgruppen gewechselt werden
 und man sieht auf einen Blick in jeder Kanalgruppe die laufenden Sendungen und den Fortschritt der Sendungen.
