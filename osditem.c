@@ -58,7 +58,10 @@ void myOsdItem::Set()
         if(ti->Matches(t) && (ti->Channel() == channel))
         {
             timer = ti;
-            m = timer->Recording() ? Icons::Recording() : Icons::AlarmClock();
+            if( progressbar == 1 )
+                m = timer->Recording() ? "*" : "#";
+            else
+                m = timer->Recording() ? Icons::Recording() : Icons::AlarmClock();
         }
     }
 
