@@ -67,58 +67,93 @@ class myMenuSetup : public cMenuSetupPage
             ProgressBarTexts.Append( strdup( tr("VDRSymbols")) );
             ProgressBarTexts.Append( strdup( tr("Text")) );
             ProgressBarTexts.Append( strdup( tr("Percent")) );
-
-            for(cChannel *Channel = Channels.First(); Channel; Channel = Channels.Next(Channel))
-            {
-                if( Channel->GroupSep() )
-                    menuGroupCount++;
-            }
-
-            if( HideGroupsAt < 0 || HideGroupsAt >= menuGroupCount )
-                HideGroupsAt = 0;
-
-            // add one group if the first is not one
-            if( !Channels.First()->GroupSep() )
-            {
-                menuGroupCount++;
-                HideFirst = false;
-                HideGroupsAtTexts.Append( strdup( tr("no filter")) );
-                index++;
-            }
             
-            for(cChannel *Channel = Channels.First(); Channel; Channel = Channels.Next(Channel))
-            {
-                if( Channel->GroupSep() )
+            #if APIVERSNUM >= 20301
+                LOCK_CHANNELS_READ;
+                for (const cChannel *Channel = Channels->First(); Channel; Channel = Channels->Next(Channel)) {
+                    if( Channel->GroupSep() )
+                        menuGroupCount++;
+                }
+
+                if( HideGroupsAt < 0 || HideGroupsAt >= menuGroupCount )
+                    HideGroupsAt = 0;
+
+                // add one group if the first is not one
+                if( !Channels->First()->GroupSep() )
                 {
-                    if( HideFirst )
-                    {
-                        HideFirst = false;
-                        HideGroupsAtTexts.Append( strdup( tr("no filter")) );
-                        index++;
-                        continue;
-                    }
-                    HideGroupsAtTexts.Append( strdup(Channel->Name()) );
+                    menuGroupCount++;
+                    HideFirst = false;
+                    HideGroupsAtTexts.Append( strdup( tr("no filter")) );
                     index++;
                 }
-            }
+
+                for(const cChannel *Channel = Channels->First(); Channel; Channel = Channels->Next(Channel))
+                {
+                    if( Channel->GroupSep() )
+                    {
+                        if( HideFirst )
+                        {
+                            HideFirst = false;
+                            HideGroupsAtTexts.Append( strdup( tr("no filter")) );
+                            index++;
+                            continue;
+                        }
+                        HideGroupsAtTexts.Append( strdup(Channel->Name()) );
+                        index++;
+                    }
+                }
+            #else
+                for(cChannel *Channel = Channels.First(); Channel; Channel = Channels.Next(Channel)) {
+                    if( Channel->GroupSep() )
+                        menuGroupCount++;
+                }
+
+                if( HideGroupsAt < 0 || HideGroupsAt >= menuGroupCount )
+                    HideGroupsAt = 0;
+
+                // add one group if the first is not one
+                if( !Channels.First()->GroupSep() )
+                {
+                    menuGroupCount++;
+                    HideFirst = false;
+                    HideGroupsAtTexts.Append( strdup( tr("no filter")) );
+                    index++;
+                }
+
+                for(cChannel *Channel = Channels.First(); Channel; Channel = Channels.Next(Channel))
+                {
+                    if( Channel->GroupSep() )
+                    {
+                        if( HideFirst )
+                        {
+                            HideFirst = false;
+                            HideGroupsAtTexts.Append( strdup( tr("no filter")) );
+                            index++;
+                            continue;
+                        }
+                        HideGroupsAtTexts.Append( strdup(Channel->Name()) );
+                        index++;
+                    }
+                }
+#endif
 
 
-            Add(new cOsdItem(tr("Behavior"), osUnknown, false));
-            Add(new cMenuEditIntItem(tr("Step width (min)"), &Step));
-            Add(new cMenuEditTimeItem(tr("Favorite time"), &bookmark));
-            Add(new cMenuEditStraItem(tr("Key to switch channel"), &switchwithok, SwitchWithOKTexts.Size(), &SwitchWithOKTexts[0]));
-            Add(new cMenuEditBoolItem(tr("Selected item centered"), &middlemenuentry));
-            Add(new cMenuEditStraItem(tr("Keys to switch channel group"), &switchgroupkey, SwitchGroupKeyTexts.Size(), &SwitchGroupKeyTexts[0]));
+                Add(new cOsdItem(tr("Behavior"), osUnknown, false));
+                Add(new cMenuEditIntItem(tr("Step width (min)"), &Step));
+                Add(new cMenuEditTimeItem(tr("Favorite time"), &bookmark));
+                Add(new cMenuEditStraItem(tr("Key to switch channel"), &switchwithok, SwitchWithOKTexts.Size(), &SwitchWithOKTexts[0]));
+                Add(new cMenuEditBoolItem(tr("Selected item centered"), &middlemenuentry));
+                Add(new cMenuEditStraItem(tr("Keys to switch channel group"), &switchgroupkey, SwitchGroupKeyTexts.Size(), &SwitchGroupKeyTexts[0]));
 
-            Add(new cOsdItem(tr("Appearance"), osUnknown, false));
-            Add(new cMenuEditBoolItem(tr("Hide main menu entry"), &hidemainmenu));
-            Add(new cMenuEditIntItem(tr("Channel name width"), &ChannelNameWidth));
-            Add(new cMenuEditBoolItem(tr("Keep display after switching"), &keeposd));
-            Add(new cMenuEditBoolItem(tr("Show channel numbers"), &showchannelnumbers));
-            Add(new cMenuEditStraItem(tr("Hide Groups at"), &HideGroupsAt, HideGroupsAtTexts.Size(), &HideGroupsAtTexts[0]));
-            Add(new cMenuEditBoolItem(tr("Hide encrypted channels"), &hideencryptedchannels));
-            Add(new cMenuEditBoolItem(tr("Hide radio channels"), &hideradiochannels));
-            Add(new cMenuEditStraItem(tr("Progressbar modus"), &progressbar, ProgressBarTexts.Size(), &ProgressBarTexts[0]));
+                Add(new cOsdItem(tr("Appearance"), osUnknown, false));
+                Add(new cMenuEditBoolItem(tr("Hide main menu entry"), &hidemainmenu));
+                Add(new cMenuEditIntItem(tr("Channel name width"), &ChannelNameWidth));
+                Add(new cMenuEditBoolItem(tr("Keep display after switching"), &keeposd));
+                Add(new cMenuEditBoolItem(tr("Show channel numbers"), &showchannelnumbers));
+                Add(new cMenuEditStraItem(tr("Hide Groups at"), &HideGroupsAt, HideGroupsAtTexts.Size(), &HideGroupsAtTexts[0]));
+                Add(new cMenuEditBoolItem(tr("Hide encrypted channels"), &hideencryptedchannels));
+                Add(new cMenuEditBoolItem(tr("Hide radio channels"), &hideradiochannels));
+                Add(new cMenuEditStraItem(tr("Progressbar modus"), &progressbar, ProgressBarTexts.Size(), &ProgressBarTexts[0]));
         }
 };
 

@@ -14,9 +14,15 @@ class myOsdItem : public cOsdItem
     public:
         const cEvent *event;
         const cChannel *channel;
+#if APIVERSNUM >= 20301
+        const cTimer *timer;
+        virtual void Set();
+        myOsdItem(const cEvent *Event, const cChannel *Channel, bool Next);
+#else
         cTimer *timer;
         virtual void Set();
-        myOsdItem(const cEvent *Event,cChannel *Channel,bool Next);
+        myOsdItem(const cEvent *Event, cChannel *Channel, bool Next);
+#endif
 };
 
 class Icons

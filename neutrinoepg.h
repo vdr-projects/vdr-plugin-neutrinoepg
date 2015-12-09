@@ -12,8 +12,6 @@
 
 #include "osdmenu.h"
 
-#define CHNUMWIDTH ( numdigits(Channels.MaxNumber()) )
-
 extern int hidemainmenu;
 
 extern int bookmark;

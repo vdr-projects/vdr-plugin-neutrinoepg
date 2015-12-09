@@ -12,54 +12,50 @@ bool isMenuEvent;
 
 struct Epgsearch_search_v1_0
 {
-// in
+    // in
     char* query;               // search term
     int mode;                  // search mode (0=phrase, 1=and, 2=or, 3=regular expression)
     int channelNr;             // channel number to search in (0=any)
     bool useTitle;             // search in title
     bool useSubTitle;          // search in subtitle
     bool useDescription;       // search in description
-// out
+    // out
     cOsdMenu* pResultMenu;   // pointer to the menu of results
 };
 
-myMenuEvent::myMenuEvent(myOsdItem *Item) : cOsdMenu(trVDR("Event"))
-{
+myMenuEvent::myMenuEvent(myOsdItem *Item) : cOsdMenu(trVDR("Event")) {
     item    = Item;
     event   = item->event;
-    timer   = item->timer;
+    timer   = (cTimer*) item->timer;
     channel = item->channel;
 
     isMenuEvent = true;
-    
+
     SetTitle( channel->Name() );
     pEpgSearch = cPluginManager::GetPlugin("epgsearch");
 
-    if( timer )
-    {
+    if( timer ) {
         if( pEpgSearch )
             SetHelp(tr("Button$Edit T."), tr("Button$Delete T."), tr("Button$Search for repeats"), trVDR("Button$Switch"));
         else
             SetHelp(tr("Button$Edit T."), tr("Button$Delete T."), NULL, trVDR("Button$Switch"));
     }
-    else
-    {
+    else {
         if( pEpgSearch && event )
             SetHelp(trVDR("Button$Record"), NULL, tr("Button$Search for repeats"), trVDR("Button$Switch"));
         else
             SetHelp(trVDR("Button$Record"), NULL, NULL, trVDR("Button$Switch"));
     }
 }
-myMenuEvent::~myMenuEvent(void)
-{
+
+myMenuEvent::~myMenuEvent(void) {
     isMenuEvent = false;
 }
-void myMenuEvent::Display()
-{
+
+void myMenuEvent::Display() {
     cOsdMenu::Display();
 
-    if(event)
-    {
+    if(event) {
         DisplayMenu()->SetEvent(event);
         cStatus::MsgOsdTextItem(event->Description());
     }
@@ -67,8 +63,7 @@ void myMenuEvent::Display()
         DisplayMenu()->SetText(tr("no program info"), 0);
 }
 
-eOSState myMenuEvent::SearchRepeats(void)
-{
+eOSState myMenuEvent::SearchRepeats(void) {
     if( !pEpgSearch )
         return osContinue;
 
@@ -94,8 +89,7 @@ eOSState myMenuEvent::SearchRepeats(void)
 
 }
 
-eOSState myMenuEvent::Switch()
-{
+eOSState myMenuEvent::Switch() {
     const cChannel *channel = item->channel;
     if(channel && cDevice::PrimaryDevice()->SwitchChannel(channel, true))
         return keeposd ? osContinue : osEnd;
@@ -103,23 +97,26 @@ eOSState myMenuEvent::Switch()
     return osContinue;
 }
 
-eOSState myMenuEvent::Record()
-{
+eOSState myMenuEvent::Record() {
     // if a timer exists, edit it
     if(timer)
         return AddSubMenu(new cMenuEditTimer(timer));
-    else
-    {
+    else {
         // we have to create a new one
-        if(event)
-        {
+        if(event) {
             timer = new cTimer(event);
+#if APIVERSNUM >= 20301
+            LOCK_TIMERS_WRITE;
+            Timers->Add(timer);
+            timer->Matches();
+            Timers->SetModified();
+#else
             Timers.Add(timer);
             timer->Matches();
             Timers.SetModified();
+#endif
         }
-        else
-        {
+        else {
             // this is a hack to create a timer for channels without events
             char *buffer;
             int starthh, startmm, stophh, stopmm;
@@ -148,22 +145,29 @@ eOSState myMenuEvent::Record()
     return osContinue;
 }
 
-eOSState myMenuEvent::Delete()
-{
-    if(Interface->Confirm(trVDR("Delete timer?")))
-    {
-        if(timer->Recording())
-        {
-            if(Interface->Confirm(trVDR("Timer still recording - really delete?")))
-            {
+eOSState myMenuEvent::Delete() {
+    if(Interface->Confirm( trVDR("Delete timer?") )) {
+        if(timer->Recording()) {
+            if(Interface->Confirm( trVDR("Timer still recording - really delete?"))) {
                 timer->Skip();
+#if APIVERSNUM >= 20301
+                LOCK_TIMERS_WRITE;
+                cRecordControls::Process(Timers, time(NULL));
+#else
                 cRecordControls::Process(time(NULL));
+#endif
             }
             else
                 return osContinue;
         }
+#if APIVERSNUM >= 20301
+        LOCK_TIMERS_WRITE;
+        Timers->Del(timer);
+        Timers->SetModified();
+#else
         Timers.Del(timer);
         Timers.SetModified();
+#endif
         timer = NULL;
 
         SetHelp(trVDR("Button$Record"), NULL, NULL, trVDR("Button$Switch"));
@@ -173,12 +177,12 @@ eOSState myMenuEvent::Delete()
     return osContinue;
 }
 
-eOSState myMenuEvent::ProcessKey(eKeys Key)
-{
-    if(!HasSubMenu())
-    {
-        switch((int)Key)
-        {
+eOSState myMenuEvent::ProcessKey(eKeys Key) {
+#if APIVERSNUM >= 20301
+    LOCK_SCHEDULES_READ;
+#endif
+    if(!HasSubMenu()) {
+        switch((int)Key) {
             case kUp|k_Repeat:
             case kUp:
             case kDown|k_Repeat:
@@ -188,67 +192,71 @@ eOSState myMenuEvent::ProcessKey(eKeys Key)
                         NORMALKEY(Key) == kLeft ||  NORMALKEY(Key) == kRight);
                 cStatus::MsgOsdTextItem(NULL, NORMALKEY(Key) == kUp);
                 return osContinue;
-            case kLeft:
-            {
-                // previous event
-                cSchedulesLock schedulesLock;
-                const cSchedules *schedules;
-                schedules = cSchedules::Schedules(schedulesLock);
-                const cSchedule *Schedule = schedules->GetSchedule( channel->GetChannelID() );
-
-                if(Schedule)
-                {
-                    // do not go before first schedule
-                    if( event == Schedule->Events()->First() )
-                        break;
-                    
-                    const cEvent *prev = NULL, *e = NULL;
-                    for( e = Schedule->Events()->First(); e; e = Schedule->Events()->Next(e) )
-                    {
-                        if( e == event )
+            case kLeft: {
+                    // previous event
+#if APIVERSNUM >= 20301
+                    const cSchedule *Schedule = Schedules->GetSchedule( channel );
+#else
+                    cSchedulesLock schedulesLock;
+                    const cSchedules *schedules;
+                    schedules = cSchedules::Schedules(schedulesLock);
+                    const cSchedule *Schedule = schedules->GetSchedule( channel->GetChannelID() );
+#endif
+                    if(Schedule) {
+                        // do not go before first schedule
+                        if( event == Schedule->Events()->First() )
                             break;
-                        prev = e;
-                    }
-                    if( prev != e )
-                        event = prev;
-                    else
-                        event = NULL;
 
-                    Display();
-                }
-                
-                return osContinue;
-            }
-            case kRight:
-            {
-                // next event
-                cSchedulesLock schedulesLock;
-                const cSchedules *schedules;
-                schedules = cSchedules::Schedules(schedulesLock);
-                const cSchedule *Schedule = schedules->GetSchedule( channel->GetChannelID() );
-                if(Schedule)
-                {
-                    const cEvent *next, *e = NULL;
-                    for( e = Schedule->Events()->First(); e; e = Schedule->Events()->Next(e) )
-                    {
-                        if( e == event )
-                            break;
-                    }
-                    if( e )
-                    {
-                        next = Schedule->Events()->Next(e);
-                        if( next )
-                            event = next;
+                        const cEvent *prev = NULL, *e = NULL;
+                        for( e = Schedule->Events()->First(); e; e = Schedule->Events()->Next(e) ) {
+                            if( e == event )
+                                break;
+                            prev = e;
+                        }
+                        if( prev != e )
+                            event = prev;
                         else
                             event = NULL;
+
+                        Display();
                     }
-                    else
-                        event = NULL;
-               
-                    Display();
+
+                    return osContinue;
                 }
-                return osContinue;
-            }
+            case kRight:
+                {
+                    // next event
+#if APIVERSNUM >= 20301
+                    const cSchedule *Schedule = Schedules->GetSchedule( channel );
+#else
+                    cSchedulesLock schedulesLock;
+                    const cSchedules *schedules;
+                    schedules = cSchedules::Schedules(schedulesLock);
+                    const cSchedule *Schedule = schedules->GetSchedule( channel->GetChannelID() );
+#endif
+                    if(Schedule)
+                    {
+                        const cEvent *next, *e = NULL;
+                        for( e = Schedule->Events()->First(); e; e = Schedule->Events()->Next(e) )
+                        {
+                            if( e == event )
+                                break;
+                        }
+                        if( e )
+                        {
+                            next = Schedule->Events()->Next(e);
+                            if( next )
+                                event = next;
+                            else
+                                event = NULL;
+                        }
+                        else
+                            event = NULL;
+
+                        Display();
+                    }
+                    return osContinue;
+                }
             default:
                 break;
         }

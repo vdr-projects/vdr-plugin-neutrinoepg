@@ -36,7 +36,7 @@ void Icons::InitCharSet()
 }
 
 // --- myWhatsOnItem ----------------------------------------------------------
-myOsdItem::myOsdItem(const cEvent *Event, cChannel *Channel, bool Next)
+myOsdItem::myOsdItem(const cEvent *Event, const cChannel *Channel, bool Next)
 {
     event = Event;
     channel = Channel;
@@ -53,7 +53,12 @@ void myOsdItem::Set()
     const char *m = " ";
 
     // look for timers
+#if APIVERSNUM >= 20301
+    LOCK_TIMERS_READ;
+    for(const cTimer *ti = Timers->First(); ti; ti = Timers->Next(ti))
+#else
     for(cTimer *ti = Timers.First(); ti; ti = Timers.Next(ti))
+#endif
     {
         if(ti->Matches(t) && (ti->Channel() == channel))
         {

@@ -15,19 +15,24 @@ int ChannelsShown;
 int ChannelsBefore;
 int ChannelsAfter;
 
-myOsdMenu::myOsdMenu() : cOsdMenu("")
-{
+myOsdMenu::myOsdMenu() : cOsdMenu("") {
     jumpto = false;
 
-    if( Setup.UseSmallFont == 2 )
-    {
+    int CHNUMWIDTH = 0;
+#if APIVERSNUM >= 20301
+    LOCK_CHANNELS_READ;
+    CHNUMWIDTH = numdigits(Channels->MaxNumber());
+#else
+    CHNUMWIDTH = numdigits(Channels.MaxNumber());
+#endif
+
+    if( Setup.UseSmallFont == 2 ) {
         if(showchannelnumbers)
             cOsdMenu::SetCols(1, CHNUMWIDTH + 1, ChannelNameWidth, 5);
         else
             cOsdMenu::SetCols(1, ChannelNameWidth, 5);
     }
-    else
-    {
+    else {
         if(showchannelnumbers)
             cOsdMenu::SetCols(1, CHNUMWIDTH + 1, ChannelNameWidth, 6);
         else
@@ -41,8 +46,7 @@ myOsdMenu::myOsdMenu() : cOsdMenu("")
     // add 50 items, make a PageDown and look what item is the current
     ChannelsShown = 0;
     char buf[20]="";
-    for(int i = 0; i < 50; i++)
-    {
+    for(int i = 0; i < 50; i++) {
         strcpy(buf, (const char *)itoa(i));
         if( i == 0 )
             Add(new cOsdItem(buf),  true);
@@ -58,21 +62,28 @@ myOsdMenu::myOsdMenu() : cOsdMenu("")
     //ChannelsShown = Skins.Current()->DisplayMenu()->MaxItems();
 
     // how many items are before and after the middle item
-    if( (ChannelsShown % 2) != 0 )
-    {
+    if( (ChannelsShown % 2) != 0 ) {
         ChannelsBefore = (ChannelsShown / 2);
         ChannelsAfter = (ChannelsShown / 2);
     }
-    else
-    {
+    else {
         ChannelsBefore = (ChannelsShown / 2);
         ChannelsAfter = (ChannelsShown / 2)-1;
     }
 
     // Count the groups and channels
     int GroupCount = 0;
-    for(cChannel *Channel = Channels.First(); Channel; Channel = Channels.Next(Channel))
-    {
+#if APIVERSNUM >= 20301
+    for(const cChannel *Channel = Channels->First(); Channel; Channel = Channels->Next(Channel)) {
+        if( Channel->GroupSep() )
+            GroupCount++;
+    }
+    MaxGroup = GroupCount;
+
+    if( !Channels->First()->GroupSep() )
+        MaxGroup++;
+#else
+    for(cChannel *Channel = Channels.First(); Channel; Channel = Channels.Next(Channel)) {
         if( Channel->GroupSep() )
             GroupCount++;
     }
@@ -80,6 +91,8 @@ myOsdMenu::myOsdMenu() : cOsdMenu("")
 
     if( !Channels.First()->GroupSep() )
         MaxGroup++;
+
+#endif
     //syslog(LOG_ERR, "neutrinoepg: MaxGroup %d", MaxGroup);
     // Hide Groups?
     if( HideGroupsAt > MaxGroup )
@@ -88,70 +101,79 @@ myOsdMenu::myOsdMenu() : cOsdMenu("")
         HideGroupsAt = 0;
     if( HideGroupsAt > 0 )
         MaxGroup -= MaxGroup - HideGroupsAt;
-    
+
     // test for different group count
-    if( LastMaxGroup != MaxGroup )
-    {
-    //:(LOG_ERR, "neutrinoepg: HideGroup %d MaxGroup %d", HideGroupsAt, MaxGroup);
-        
-    if( GroupIndex != NULL )
-        delete[] GroupIndex;
-    if( CurrentGroupChannel != NULL )
-        delete[] CurrentGroupChannel;
-    if( FirstGroupChannel != NULL )
-        delete[] FirstGroupChannel;
-    if( LastGroupChannel != NULL )
-        delete[] LastGroupChannel;
+    if( LastMaxGroup != MaxGroup ) {
+        //:(LOG_ERR, "neutrinoepg: HideGroup %d MaxGroup %d", HideGroupsAt, MaxGroup);
 
-    // store max group count and add a little reserve
-    GroupIndex = new int[MaxGroup+1];
-    CurrentGroupChannel = new int[MaxGroup+1];
-    FirstGroupChannel = new int[MaxGroup+1];
-    LastGroupChannel = new int[MaxGroup+1];
+        if( GroupIndex != NULL )
+            delete[] GroupIndex;
+        if( CurrentGroupChannel != NULL )
+            delete[] CurrentGroupChannel;
+        if( FirstGroupChannel != NULL )
+            delete[] FirstGroupChannel;
+        if( LastGroupChannel != NULL )
+            delete[] LastGroupChannel;
 
-    for( int i = 0; i < MaxGroup; i++)
-    {
-        CurrentGroupChannel[i] = -1;
-        FirstGroupChannel[i] = -1;
-        LastGroupChannel[i] = -1;
-    }
+        // store max group count and add a little reserve
+        GroupIndex = new int[MaxGroup+1];
+        CurrentGroupChannel = new int[MaxGroup+1];
+        FirstGroupChannel = new int[MaxGroup+1];
+        LastGroupChannel = new int[MaxGroup+1];
 
-    int index = 0;
-    if( FirstChannelsHasGroup() == false )
-    {
-        GroupIndex[0] = -1;
-        index = 1;
-    }
-    for( cChannel *Channel = Channels.First(); Channel && index < MaxGroup; Channel = Channels.Next(Channel) )
-    {
-        if( Channel->GroupSep() )
-        {
-            GroupIndex[index] = Channel->Index();
-            index++;
+        for( int i = 0; i < MaxGroup; i++) {
+            CurrentGroupChannel[i] = -1;
+            FirstGroupChannel[i] = -1;
+            LastGroupChannel[i] = -1;
         }
-    }
 
-    for( int Group = 0; Group < MaxGroup; Group++)
-    {
-        if( CurrentGroupChannel[Group] == -1 )
-            CurrentGroupChannel[Group] = GetFirstChannelOfGroup(Group);
-        if( FirstGroupChannel[Group] == -1 )
-            FirstGroupChannel[Group] = GetFirstChannelOfGroup(Group);
-        if( LastGroupChannel[Group] == -1 )
-            LastGroupChannel[Group] = GetLastChannelOfGroup(Group);
-    }
+        int index = 0;
+        if( FirstChannelsHasGroup() == false ) {
+            GroupIndex[0] = -1;
+            index = 1;
+        }
+#if APIVERSNUM >= 20301
+        for( const cChannel *Channel = Channels->First(); Channel && index < MaxGroup; Channel = Channels->Next(Channel) ) {
+            if( Channel->GroupSep() ) {
+                GroupIndex[index] = Channel->Index();
+                index++;
+            }
+        }
+#else
+        for( cChannel *Channel = Channels.First(); Channel && index < MaxGroup; Channel = Channels.Next(Channel) ) {
+            if( Channel->GroupSep() ) {
+                GroupIndex[index] = Channel->Index();
+                index++;
+            }
+        }
+#endif
+        for( int Group = 0; Group < MaxGroup; Group++) {
+            if( CurrentGroupChannel[Group] == -1 )
+                CurrentGroupChannel[Group] = GetFirstChannelOfGroup(Group);
+            if( FirstGroupChannel[Group] == -1 )
+                FirstGroupChannel[Group] = GetFirstChannelOfGroup(Group);
+            if( LastGroupChannel[Group] == -1 )
+                LastGroupChannel[Group] = GetLastChannelOfGroup(Group);
+        }
 
-    LastMaxGroup = MaxGroup;
-    
+        LastMaxGroup = MaxGroup;
+
     }
     // what is the current watching channel?
     int CurrentChannelNr = cDevice::CurrentChannel();
+#if APIVERSNUM >= 20301
+    const cChannel *CurrentChannel = Channels->GetByNumber(CurrentChannelNr);
+#else
     cChannel *CurrentChannel = Channels.GetByNumber(CurrentChannelNr);
+#endif
     // is Current Channel is filtered?
     bool isRadio = ( (!CurrentChannel->Vpid()) && (CurrentChannel->Apid(0)) ) ? true : false;
-    if( (isRadio && hideradiochannels) || (CurrentChannel->Ca() && hideencryptedchannels) )
-    {
+    if( (isRadio && hideradiochannels) || (CurrentChannel->Ca() && hideencryptedchannels) ) {
+#if APIVERSNUM >= 20301
+        CurrentChannel = Channels->Get( GetNextChannel( CurrentChannel->Index() ) );
+#else
         CurrentChannel = Channels.Get( GetNextChannel( CurrentChannel->Index() ) );
+#endif
     }
     // what is the current channel & group?
     CurrentGroup = GetGroupFromChannel( CurrentChannel->Index() );
@@ -160,57 +182,73 @@ myOsdMenu::myOsdMenu() : cOsdMenu("")
     LoadSchedules(0);
 }
 
-myOsdMenu::~myOsdMenu()
-{
+myOsdMenu::~myOsdMenu() {
 }
 
-int myOsdMenu::GetGroupIndex(int Group)
-{
+int myOsdMenu::GetGroupIndex(int Group) {
     if( Group < 0 || Group > MaxGroup)
         return -1;
 
     return GroupIndex[Group];
 }
-int myOsdMenu::GetGroupByGroupIndex(int groupIndex)
-{
+int myOsdMenu::GetGroupByGroupIndex(int groupIndex) {
     if( ChannelsHasGroup() == false || groupIndex == -1 )
         return 0;
 
-    for(int index = 0; index < MaxGroup; index++)
-    {
+    for(int index = 0; index < MaxGroup; index++) {
         if( GroupIndex[index] == groupIndex )
             return index;
     }
     return 0;
 }
-int myOsdMenu::GetGroupFromChannel(int ChanIndex)
-{
+int myOsdMenu::GetGroupFromChannel(int ChanIndex) {
+#if APIVERSNUM >= 20301
+    LOCK_CHANNELS_READ;
+    int GroupIndex = Channels->GetPrevGroup(ChanIndex);
+#else
     int GroupIndex = Channels.GetPrevGroup(ChanIndex);
+#endif
     if( GroupIndex == -1 )
         return 0;
     return GetGroupByGroupIndex( GroupIndex );
 }
 
-int myOsdMenu::GetLastGroupIndex(void)
-{
+int myOsdMenu::GetLastGroupIndex(void) {
+#if APIVERSNUM >= 20301
+    LOCK_CHANNELS_READ;
+    const cChannel *Channel = Channels->Last();
+    return Channels->GetPrevGroup( Channel->Index() );
+#else
     cChannel *Channel = Channels.Last();
     return Channels.GetPrevGroup( Channel->Index() );
+#endif
 }
 
-int myOsdMenu::GetFirstGroupIndex(void)
-{
+int myOsdMenu::GetFirstGroupIndex(void) {
+#if APIVERSNUM >= 20301
+    LOCK_CHANNELS_READ;
+    const cChannel *Channel = Channels->First();
+    if( Channel->GroupSep() )
+        return Channel->Index();
+    return Channels->GetNextGroup( Channel->Index() );
+#else
     cChannel *Channel = Channels.First();
     if( Channel->GroupSep() )
         return Channel->Index();
     return Channels.GetNextGroup( Channel->Index() );
+#endif
 }
 
-int myOsdMenu::GetFirstChannelOfGroup(int Group)
-{
-    if( ChannelsHasGroup() == false ) // no groups -> get First Channel
-    {
+int myOsdMenu::GetFirstChannelOfGroup(int Group) {
+    if( ChannelsHasGroup() == false ) { // no groups -> get First Channel
+#if APIVERSNUM >= 20301
+        LOCK_CHANNELS_READ;
+        const cChannel *Channel;
+        Channel = Channels->First();
+#else
         cChannel *Channel;
         Channel = Channels.First();
+#endif
         if( Channel == NULL )
             return -1;
         bool isRadio = ( (!Channel->Vpid()) && (Channel->Apid(0)) ) ? true : false;
@@ -223,16 +261,25 @@ int myOsdMenu::GetFirstChannelOfGroup(int Group)
     return GetNextChannelOfGroup( GetGroupIndex(Group), Group );
 }
 
-int myOsdMenu::GetLastChannelOfGroup(int Group)
-{
+int myOsdMenu::GetLastChannelOfGroup(int Group) {
+#if APIVERSNUM >= 20301
+    LOCK_CHANNELS_READ;
+    int NextGroup = Channels->GetNextGroup( GetGroupIndex(Group) );
+#else
     int NextGroup = Channels.GetNextGroup( GetGroupIndex(Group) );
+#endif
     // next group -> get prev channel of next group
     if( NextGroup != -1 )
         return GetPrevChannelOfGroup(NextGroup, Group);
     else // no next group -> get last channel
     {
+#if APIVERSNUM >= 20301
+        const cChannel *Channel;
+        Channel = Channels->Last();
+#else
         cChannel *Channel;
         Channel = Channels.Last();
+#endif
         if( Channel == NULL )
             return -1;
         if( isChannelInGroup( Channel->Index(), Group ) == false )
@@ -241,67 +288,81 @@ int myOsdMenu::GetLastChannelOfGroup(int Group)
         bool isRadio = ( (!Channel->Vpid()) && (Channel->Apid(0)) ) ? true : false;
         if( !(isRadio && hideradiochannels) && !(Channel->Ca() && hideencryptedchannels) )
             return Channel->Index();
-    
+
         return GetPrevChannelOfGroup( Channel->Index(), Group );
     }
-    
+
 }
 
-int myOsdMenu::GetNextChannel(int ChanIndex)
-{
+int myOsdMenu::GetNextChannel(int ChanIndex) {
+#if APIVERSNUM >= 20301
+    LOCK_CHANNELS_READ;
+    const cChannel *Channel;
+    Channel = Channels->Get( Channels->GetNextNormal(ChanIndex) );
+#else
     cChannel *Channel;
     Channel = Channels.Get( Channels.GetNextNormal(ChanIndex) );
+#endif
     if( Channel == NULL )
         return -1;
-    do
-    {
+    do {
         bool isRadio = ( (!Channel->Vpid()) && (Channel->Apid(0)) ) ? true : false;
         if( !(isRadio && hideradiochannels) && !(Channel->Ca() && hideencryptedchannels) )
             break;
-    } while( (Channel = Channels.Get( Channels.GetNextNormal( Channel->Index() ))) != NULL );
+#if APIVERSNUM >= 20301        
+    } while( (Channel = Channels->Get( Channels->GetNextNormal( Channel->Index() ))) != NULL );
+#else
+} while( (Channel = Channels.Get( Channels.GetNextNormal( Channel->Index() ))) != NULL );
+#endif
 
-    if( Channel == NULL )
-        return -1;
+if( Channel == NULL )
+    return -1;
 
     return Channel->Index();
-}
+    }
 
-int myOsdMenu::GetPrevChannel(int ChanIndex)
-{
+int myOsdMenu::GetPrevChannel(int ChanIndex) {
+#if APIVERSNUM >= 20301
+    LOCK_CHANNELS_READ;
+    const cChannel *Channel;
+    Channel = Channels->Get( Channels->GetPrevNormal(ChanIndex) );
+#else
     cChannel *Channel;
     Channel = Channels.Get( Channels.GetPrevNormal(ChanIndex) );
+#endif
     if( Channel == NULL )
         return -1;
-    do
-    {
+    do {
         bool isRadio = ( (!Channel->Vpid()) && (Channel->Apid(0)) ) ? true : false;
         if( !(isRadio && hideradiochannels) && !(Channel->Ca() && hideencryptedchannels) )
             break;
-    } while( (Channel = Channels.Get( Channels.GetPrevNormal( Channel->Index() ))) != NULL );
+#if APIVERSNUM >= 20301
+    } while( (Channel = Channels->Get( Channels->GetPrevNormal( Channel->Index() ))) != NULL );
+#else
+} while( (Channel = Channels.Get( Channels.GetPrevNormal( Channel->Index() ))) != NULL );
+#endif
 
-    if( Channel == NULL )
-        return -1;
+if( Channel == NULL )
+    return -1;
 
     return Channel->Index();
-}
+    }
 
-int myOsdMenu::GetNextChannelOfGroup(int ChanIndex, int Group)
-{
+int myOsdMenu::GetNextChannelOfGroup(int ChanIndex, int Group) {
     int NextIndex = GetNextChannel( ChanIndex );
     if( isChannelInGroup( NextIndex, Group ) == false )
         return -1;
     return NextIndex;
 }
-int myOsdMenu::GetPrevChannelOfGroup(int ChanIndex, int Group)
-{
+
+int myOsdMenu::GetPrevChannelOfGroup(int ChanIndex, int Group) {
     int PrevIndex = GetPrevChannel( ChanIndex );
     if( isChannelInGroup( PrevIndex, Group ) == false )
         return -1;
     return PrevIndex;
 }
 
-bool myOsdMenu::isChannelInGroup(int ChanIndex, int Group)
-{
+bool myOsdMenu::isChannelInGroup(int ChanIndex, int Group) {
     if( ChannelsHasGroup() == false )
         return true;
 
@@ -309,42 +370,55 @@ bool myOsdMenu::isChannelInGroup(int ChanIndex, int Group)
     return Group == ChanGroup ? true : false;
 }
 
-bool myOsdMenu::ChannelsHasGroup(void)
-{
+bool myOsdMenu::ChannelsHasGroup(void) {
+#if APIVERSNUM >= 20301
+    LOCK_CHANNELS_READ;
+    const cChannel *Channel = Channels->First();
+    if( Channel->GroupSep() )
+        return true;
+    int Group = Channels->GetNextGroup(Channel->Index());
+    return Group != -1 ? true : false;
+#else
     cChannel *Channel = Channels.First();
     if( Channel->GroupSep() )
         return true;
     int Group = Channels.GetNextGroup(Channel->Index());
     return Group != -1 ? true : false;
+#endif
 }
 
-bool myOsdMenu::FirstChannelsHasGroup(void)
-{
+bool myOsdMenu::FirstChannelsHasGroup(void) {
+#if APIVERSNUM >= 20301
+    LOCK_CHANNELS_READ;
+    const cChannel *Channel = Channels->First();
+#else
     cChannel *Channel = Channels.First();
+#endif
     if( Channel->GroupSep() )
         return true;
     return false;
 }
 
-void myOsdMenu::LoadSchedules(int shift)
-{
+void myOsdMenu::LoadSchedules(int shift) {
     t += shift * Step * 60;
 
     // clar all items
     Clear();
-
+#if APIVERSNUM >= 20301
+    LOCK_SCHEDULES_READ;
+    LOCK_CHANNELS_READ;
+#else
     schedules = cSchedules::Schedules(schedulesLock);
-    if( middlemenuentry )
-    {
+#endif
+    if( middlemenuentry ) {
         int NumAdded = 0;
         int AddChanIndex = -1, ChanIndex = -1;
         AddChanIndex = CurrentGroupChannel[CurrentGroup];
         ChanIndex = AddChanIndex;
-        
+
         // count if we have more channels add to the front because we are at the end
         int ExtraAdded = ChannelsAfter;
-        while( ExtraAdded-- )
-        {
+        while( ExtraAdded-- ) {
             ChanIndex = GetNextChannelOfGroup( ChanIndex, CurrentGroup );
             if( ChanIndex == -1 )
                 break;
@@ -354,19 +428,21 @@ void myOsdMenu::LoadSchedules(int shift)
 
         // count Channels
         NumAdded -= ExtraAdded;
-        for( ; NumAdded <= ChannelsBefore; NumAdded++ )
-        {
+        for( ; NumAdded <= ChannelsBefore; NumAdded++ ) {
             AddChanIndex = GetPrevChannelOfGroup( AddChanIndex, CurrentGroup );
             if( AddChanIndex == -1 )
                 break;
             ChanIndex = AddChanIndex;
         }
-        for( NumAdded = 0; NumAdded < ChannelsShown && ChanIndex != -1; NumAdded++ )
-        {
+        for( NumAdded = 0; NumAdded < ChannelsShown && ChanIndex != -1; NumAdded++ ) {
+#if APIVERSNUM >= 20301
+            const cChannel *Channel = Channels->Get( ChanIndex );
+            const cSchedule *Schedule = Schedules->GetSchedule(Channel);
+#else
             cChannel *Channel = Channels.Get( ChanIndex );
             const cSchedule *Schedule = schedules->GetSchedule( Channel->GetChannelID() );
-            if(Schedule)
-            {
+#endif
+            if(Schedule) {
                 // event from now or any other date (next)
                 const cEvent *Event = next ? Schedule->GetEventAround(t) : Schedule->GetPresentEvent();
                 Add(new myOsdItem(Event, Channel, next), Channel->Index() == CurrentGroupChannel[CurrentGroup] );
@@ -375,12 +451,14 @@ void myOsdMenu::LoadSchedules(int shift)
                 Add(new myOsdItem(NULL, Channel, next), Channel->Index() == CurrentGroupChannel[CurrentGroup] );
             ChanIndex = GetNextChannelOfGroup( ChanIndex, CurrentGroup );
         }
-        
+
     }
-    else
-    {
-        for( cChannel *Channel = Channels.First(); Channel; Channel = Channels.Next(Channel) )
-        {
+    else {
+#if APIVERSNUM >= 20301
+        for( const cChannel *Channel = Channels->First(); Channel; Channel = Channels->Next(Channel) ) {
+#else
+        for( cChannel *Channel = Channels.First(); Channel; Channel = Channels.Next(Channel) ) {
+#endif
             // is filtered by config?
             bool isRadio = ( (!Channel->Vpid()) && (Channel->Apid(0)) ) ? true : false;
             if( (isRadio && hideradiochannels) || (Channel->Ca() && hideencryptedchannels) )
@@ -395,11 +473,11 @@ void myOsdMenu::LoadSchedules(int shift)
                 continue;
 
             const cSchedule *Schedule = schedules->GetSchedule( Channel->GetChannelID() );
-            if(Schedule)
-            {
+            if(Schedule) {
                 // event from now or any other date (next)
                 const cEvent *Event = next ? Schedule->GetEventAround(t) : Schedule->GetPresentEvent();
                 Add(new myOsdItem(Event, Channel, next), Channel->Index() == CurrentGroupChannel[CurrentGroup] );
+                //SetItemEvent(Event, 1, false, true, Channel, false, tmNone);
             }
             else
                 Add(new myOsdItem(NULL, Channel, next), Channel->Index() == CurrentGroupChannel[CurrentGroup] );
@@ -409,10 +487,10 @@ void myOsdMenu::LoadSchedules(int shift)
 
     SetMyTitle();
 
-//    if( switchwithok )
-//        SetHelp(next ? trVDR("Button$Now") : NULL, "<<", ">>", trVDR("Button$Info") );
-//    else
-    
+    //    if( switchwithok )
+    //        SetHelp(next ? trVDR("Button$Now") : NULL, "<<", ">>", trVDR("Button$Info") );
+    //    else
+
     if( next )
         SetHelp(trVDR("Button$Now"), "<<", ">>", switchwithok ? trVDR("Button$Info") : trVDR("Button$Switch"));
     else
@@ -421,48 +499,54 @@ void myOsdMenu::LoadSchedules(int shift)
     Display();
 }
 
-void myOsdMenu::SetMyTitle(void)
-{
+void myOsdMenu::SetMyTitle(void) {
     char *buffer = NULL;
-
-    if( CurrentGroup == 0 && FirstChannelsHasGroup() == false )
-    {
+#if APIVERSNUM >= 20301
+    LOCK_CHANNELS_READ;
+#endif
+    if( CurrentGroup == 0 && FirstChannelsHasGroup() == false ) {
         if( next )
             asprintf(&buffer, "%d/%d %s - %s", 
-                CurrentGroup + 1, MaxGroup, tr("without group"), *DayDateTime(t));
+                    CurrentGroup + 1, MaxGroup, tr("without group"), *DayDateTime(t));
         else
             asprintf(&buffer, "%d/%d %s - %s", 
-                CurrentGroup + 1, MaxGroup, tr("without group"), trVDR("What's on now?"));
-    } else
-    {
+                    CurrentGroup + 1, MaxGroup, tr("without group"), trVDR("What's on now?"));
+    } else {
         int groupindex = GetGroupIndex(CurrentGroup);
-        if( next )
-        {
+        if( next ) {
             if( groupindex == -1 )
                 asprintf(&buffer, "%d/%d %s - %s", 
-                    CurrentGroup + 1, MaxGroup, "no group", *DayDateTime(t));
+                        CurrentGroup + 1, MaxGroup, "no group", *DayDateTime(t));
             else
+#if APIVERSNUM >= 20301
                 asprintf(&buffer, "%d/%d %s - %s", 
-                    CurrentGroup + 1, MaxGroup, Channels.Get( groupindex )->Name(), *DayDateTime(t));
+                        CurrentGroup + 1, MaxGroup, Channels->Get( groupindex )->Name(), *DayDateTime(t));
+#else
+                asprintf(&buffer, "%d/%d %s - %s", 
+                        CurrentGroup + 1, MaxGroup, Channels.Get( groupindex )->Name(), *DayDateTime(t));
+#endif
         }
-        else
-        {
+        else {
             if( groupindex == -1 )
                 asprintf(&buffer, "%d/%d %s - %s", 
-                    CurrentGroup + 1, MaxGroup, "no group", trVDR("What's on now?"));
+                        CurrentGroup + 1, MaxGroup, "no group", trVDR("What's on now?"));
             else
+#if APIVERSNUM >= 20301
                 asprintf(&buffer, "%d/%d %s - %s", 
-                    CurrentGroup + 1, MaxGroup, Channels.Get( groupindex )->Name(), trVDR("What's on now?"));
+                        CurrentGroup + 1, MaxGroup, Channels->Get( groupindex )->Name(), trVDR("What's on now?"));
+#else
+                asprintf(&buffer, "%d/%d %s - %s", 
+                        CurrentGroup + 1, MaxGroup, Channels.Get( groupindex )->Name(), trVDR("What's on now?"));
+#endif
         }
     }
     SetTitle(buffer);
     free(buffer);
 }
-eOSState myOsdMenu::Switch()
-{
+
+eOSState myOsdMenu::Switch() {
     myOsdItem *item = (myOsdItem *)Get(Current());
-    if(item)
-    {
+    if(item) {
         const cChannel *channel = item->channel;
         if(channel && cDevice::PrimaryDevice()->SwitchChannel(channel, true) )
             return keeposd ? osContinue : osEnd;
@@ -471,8 +555,7 @@ eOSState myOsdMenu::Switch()
     return osContinue;
 }
 
-void myOsdMenu::GoToDay(int day)
-{
+void myOsdMenu::GoToDay(int day) {
     struct tm tm1, tm2;
     time_t tmp_t = time(NULL);
 
@@ -488,8 +571,7 @@ void myOsdMenu::GoToDay(int day)
     LoadSchedules(0);
 }
 
-void myOsdMenu::JumpTo(int hour, int min)
-{
+void myOsdMenu::JumpTo(int hour, int min) {
     struct tm tmp_tm;
     localtime_r(&t, &tmp_tm);
 
@@ -505,23 +587,17 @@ void myOsdMenu::JumpTo(int hour, int min)
     LoadSchedules(0);
 }
 
-eOSState myOsdMenu::ProcessKey(eKeys Key)
-{
+eOSState myOsdMenu::ProcessKey(eKeys Key) {
     eOSState state;
 
-    if(jumpto)
-    {
-        switch(Key)
-        {
-            case k0...k9:
-                {
+    if(jumpto) {
+        switch(Key) {
+            case k0...k9: {
                     int number = Key-k0;
-                    switch(index)
-                    {
+                    switch(index) {
                         // first digit
                         case 0: 
-                            if(number <= 2)
-                            {
+                            if(number <= 2) {
                                 hh = number * 10;
                                 sprintf(tmp,"%s: %d-:--",tr("Jump to"),number);
                                 index++;
@@ -529,8 +605,7 @@ eOSState myOsdMenu::ProcessKey(eKeys Key)
                             break;
                             // second digit
                         case 1:
-                            if(hh <= 10 || hh == 20 && number <= 3)
-                            {
+                            if(hh <= 10 || hh == 20 && number <= 3) {
                                 hh += number;
                                 sprintf(tmp,"%s: %02d:--",tr("Jump to"),hh);
                                 index++;
@@ -538,8 +613,7 @@ eOSState myOsdMenu::ProcessKey(eKeys Key)
                             break;
                             // third digit
                         case 2: 
-                            if(number <= 5)
-                            {
+                            if(number <= 5) {
                                 mm = number * 10;
                                 sprintf(tmp,"%s: %02d:%d-",tr("Jump to"),hh,number);
                                 index++;
@@ -554,13 +628,11 @@ eOSState myOsdMenu::ProcessKey(eKeys Key)
                         default:
                             break;
                     }
-                    if(index == 4)
-                    {
+                    if(index == 4) {
                         JumpTo(hh, mm);
                         jumpto = 0;
                     }
-                    else
-                    {
+                    else {
                         SetTitle(tmp);
                         Display();
                     }
@@ -580,14 +652,11 @@ eOSState myOsdMenu::ProcessKey(eKeys Key)
         }
         state = osContinue;
     }
-    else
-    {
+    else {
         state = cOsdMenu::ProcessKey(Key);
 
-        if(state == osUnknown)
-        {
-            switch(Key)
-            {
+        if(state == osUnknown) {
+            switch(Key) {
                 case k1...k7:
                     GoToDay(Key-k0);
                     break;
@@ -600,15 +669,13 @@ eOSState myOsdMenu::ProcessKey(eKeys Key)
                     jumpto = 1;
                     break;
                 case kRed:
-                    if( next )
-                    {
+                    if( next ) {
                         next = false;
                         t = time(NULL);
                         LoadSchedules(0);
-                    } else
-                    {
+                    } else {
                         if( bookmark )
-                           JumpTo(bookmark/100,bookmark%100);
+                            JumpTo(bookmark/100,bookmark%100);
                     }
                     break;
                 case kGreen:
@@ -620,14 +687,11 @@ eOSState myOsdMenu::ProcessKey(eKeys Key)
                     LoadSchedules(1);
                     break;
                 case kBlue:
-                    if(switchwithok)
-                    {
+                    if(switchwithok) {
                         if( Count() )
-                           return AddSubMenu(new myMenuEvent((myOsdItem*) Get(Current())));
-                    } else
-                    {
-                        if( next )
-                        {
+                            return AddSubMenu(new myMenuEvent((myOsdItem*) Get(Current())));
+                    } else {
+                        if( next ) {
                             next = false;
                             t = time(NULL);
                             LoadSchedules(0);
@@ -637,11 +701,9 @@ eOSState myOsdMenu::ProcessKey(eKeys Key)
                     }
                     break;
                 case kOk:
-                    if(switchwithok)
-                    {
+                    if(switchwithok) {
                         return Switch();
-                    } else
-                    {
+                    } else {
                         if(Count())
                             return AddSubMenu(new myMenuEvent((myOsdItem*)Get(Current())));
                     }
@@ -649,31 +711,26 @@ eOSState myOsdMenu::ProcessKey(eKeys Key)
                     if( isMenuEvent )
                         return osContinue;
                     // if we switch channel groups with next/prev key do it
-                    if( switchgroupkey == 1 )
-                    {
+                    if( switchgroupkey == 1 ) {
                         CurrentGroup++;
                         if( CurrentGroup >= MaxGroup )
                             CurrentGroup = 0;
                         LoadSchedules(0);
                     } else // we do a page down
                     {
-                        if( CurrentGroupChannel[CurrentGroup] == LastGroupChannel[CurrentGroup] )
-                        {
+                        if( CurrentGroupChannel[CurrentGroup] == LastGroupChannel[CurrentGroup] ) {
                             CurrentGroupChannel[CurrentGroup] = FirstGroupChannel[CurrentGroup];
-                        } else
-                        {
-                            for(int i = 0; i < ChannelsShown; i++)
-                            {
+                        } else {
+                            for(int i = 0; i < ChannelsShown; i++) {
                                 CurrentGroupChannel[CurrentGroup] = GetNextChannel( CurrentGroupChannel[CurrentGroup] );
                                 if( CurrentGroupChannel[CurrentGroup] == -1 )
                                     break;
                             }
-                            if( CurrentGroupChannel[CurrentGroup] > LastGroupChannel[CurrentGroup] || CurrentGroupChannel[CurrentGroup] == -1 )
-                            {
+                            if( CurrentGroupChannel[CurrentGroup] > LastGroupChannel[CurrentGroup] || CurrentGroupChannel[CurrentGroup] == -1 ) {
                                 CurrentGroupChannel[CurrentGroup] = LastGroupChannel[CurrentGroup];
                             }
                         }
-                        
+
                         if( !middlemenuentry ) // if middlemenuentry hack is not set we can use vdr function for page down
                             PageDown();
                         else // otherwise we must do a page down by our own
@@ -686,25 +743,20 @@ eOSState myOsdMenu::ProcessKey(eKeys Key)
                     if( isMenuEvent )
                         return osContinue;
                     // if we switch channel groups with next/prev key do it
-                    if( switchgroupkey == 1 )
-                    {
+                    if( switchgroupkey == 1 ) {
                         CurrentGroup--;
                         if( CurrentGroup < 0 )
                             CurrentGroup = MaxGroup-1;
                         LoadSchedules(0);
                     } else // we do a page up
                     {
-                        if( CurrentGroupChannel[CurrentGroup] == FirstGroupChannel[CurrentGroup] )
-                        {
+                        if( CurrentGroupChannel[CurrentGroup] == FirstGroupChannel[CurrentGroup] ) {
                             CurrentGroupChannel[CurrentGroup] = LastGroupChannel[CurrentGroup];
-                        } else
-                        {
-                            for(int i = 0; i < ChannelsShown; i++)
-                            {
+                        } else {
+                            for(int i = 0; i < ChannelsShown; i++) {
                                 CurrentGroupChannel[CurrentGroup] = GetPrevChannel( CurrentGroupChannel[CurrentGroup] );
                             }
-                            if( CurrentGroupChannel[CurrentGroup] < FirstGroupChannel[CurrentGroup] )
-                            {
+                            if( CurrentGroupChannel[CurrentGroup] < FirstGroupChannel[CurrentGroup] ) {
                                 CurrentGroupChannel[CurrentGroup] = FirstGroupChannel[CurrentGroup];
                             }
                         }
@@ -720,42 +772,38 @@ eOSState myOsdMenu::ProcessKey(eKeys Key)
                 default:
                     break;
             }
-        } else
-        {
-            switch((int)Key)
-            {
+        } else {
+            switch((int)Key) {
                 case kUp|k_Repeat:
-                case kUp:
-                {
-                    if( isMenuEvent )
-                        return osContinue;
-                   
-                    CurrentGroupChannel[CurrentGroup] = GetPrevChannel( CurrentGroupChannel[CurrentGroup] );
-                    if( CurrentGroupChannel[CurrentGroup] < FirstGroupChannel[CurrentGroup] )
-                        CurrentGroupChannel[CurrentGroup] = LastGroupChannel[CurrentGroup];
+                case kUp: {
+                        if( isMenuEvent )
+                            return osContinue;
 
-                    if( !middlemenuentry ) // if middlemenuentry hack is not set we can let vdr kUp
-                        return osContinue;
+                        CurrentGroupChannel[CurrentGroup] = GetPrevChannel( CurrentGroupChannel[CurrentGroup] );
+                        if( CurrentGroupChannel[CurrentGroup] < FirstGroupChannel[CurrentGroup] )
+                            CurrentGroupChannel[CurrentGroup] = LastGroupChannel[CurrentGroup];
 
-                    LoadSchedules(0);
-                    return osContinue;
-                }
+                        if( !middlemenuentry ) // if middlemenuentry hack is not set we can let vdr kUp
+                            return osContinue;
+
+                        LoadSchedules(0);
+                        return osContinue;
+                    }
                 case kDown|k_Repeat:
-                case kDown:
-                {
-                    if( isMenuEvent )
+                case kDown: {
+                        if( isMenuEvent )
+                            return osContinue;
+
+                        CurrentGroupChannel[CurrentGroup] = GetNextChannel( CurrentGroupChannel[CurrentGroup] );
+                        if( CurrentGroupChannel[CurrentGroup] > LastGroupChannel[CurrentGroup] || CurrentGroupChannel[CurrentGroup] == -1 )
+                            CurrentGroupChannel[CurrentGroup] = FirstGroupChannel[CurrentGroup];
+
+                        if( !middlemenuentry ) // if middlemenuentry hack is not set we can let vdr kDown
+                            return osContinue;
+
+                        LoadSchedules(0);
                         return osContinue;
-
-                    CurrentGroupChannel[CurrentGroup] = GetNextChannel( CurrentGroupChannel[CurrentGroup] );
-                    if( CurrentGroupChannel[CurrentGroup] > LastGroupChannel[CurrentGroup] || CurrentGroupChannel[CurrentGroup] == -1 )
-                        CurrentGroupChannel[CurrentGroup] = FirstGroupChannel[CurrentGroup];
-
-                    if( !middlemenuentry ) // if middlemenuentry hack is not set we can let vdr kDown
-                        return osContinue;
-
-                    LoadSchedules(0);
-                    return osContinue;
-                }
+                    }
                 case kLeft|k_Repeat:
                 case kLeft:
                     if( isMenuEvent )
@@ -776,13 +824,13 @@ eOSState myOsdMenu::ProcessKey(eKeys Key)
                                 CurrentGroupChannel[CurrentGroup] = FirstGroupChannel[CurrentGroup];
                             }
                         }
-                        
+
                         if( middlemenuentry ) // if middlemenuentry hack is set do own page up
                         {
                             LoadSchedules(0);
                             break;
                         }
-                        
+
                         return osContinue;
                     }
                     // otherwise we switch the group to the left
@@ -819,7 +867,7 @@ eOSState myOsdMenu::ProcessKey(eKeys Key)
                             LoadSchedules(0);
                             break;
                         }
-                        
+
                         return osContinue;
                     }
 
