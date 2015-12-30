@@ -36,7 +36,11 @@ void Icons::InitCharSet()
 }
 
 // --- myWhatsOnItem ----------------------------------------------------------
+#if APIVERSNUM >= 20301
 myOsdItem::myOsdItem(const cEvent *Event, const cChannel *Channel, bool Next)
+#else
+myOsdItem::myOsdItem(const cEvent *Event, cChannel *Channel, bool Next)
+#endif
 {
     event = Event;
     channel = Channel;
