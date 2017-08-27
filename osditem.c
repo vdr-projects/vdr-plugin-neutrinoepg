@@ -123,7 +123,7 @@ void myOsdItem::Set()
             char szProgress[20] = "";
             char szProgressPart[25] = "";
             int progress = (int)roundf( (float)(time(NULL) - event->StartTime()) / (float) (event->Duration()) * 8.0);
-            progress = min(8, max(0, progress));
+            progress = std::min(8, std::max(0, progress));
 
             for(int i = 0; i < 8; i++) {
                 if( i < progress )

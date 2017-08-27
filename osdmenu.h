@@ -27,7 +27,10 @@ class myOsdMenu : public cOsdMenu
 
         int hh, mm, index;
         const cSchedules *schedules;
+
+#if VDRVERSNUM < 20301
         cSchedulesLock schedulesLock;
+#endif
 
         void LoadSchedules(int shift);
         void GoToDay(int day);
