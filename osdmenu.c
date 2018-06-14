@@ -21,6 +21,7 @@ myOsdMenu::myOsdMenu() : cOsdMenu("") {
     int CHNUMWIDTH = 0;
 #if APIVERSNUM >= 20301
     LOCK_CHANNELS_READ;
+    LOCK_TIMERS_READ;
     CHNUMWIDTH = numdigits(Channels->MaxNumber());
 #else
     CHNUMWIDTH = numdigits(Channels.MaxNumber());
