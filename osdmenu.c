@@ -20,8 +20,8 @@ myOsdMenu::myOsdMenu() : cOsdMenu("") {
 
     int CHNUMWIDTH = 0;
 #if APIVERSNUM >= 20301
-    LOCK_CHANNELS_READ;
     LOCK_TIMERS_READ;
+    LOCK_CHANNELS_READ;
     CHNUMWIDTH = numdigits(Channels->MaxNumber());
 #else
     CHNUMWIDTH = numdigits(Channels.MaxNumber());
@@ -204,6 +204,7 @@ int myOsdMenu::GetGroupByGroupIndex(int groupIndex) {
 }
 int myOsdMenu::GetGroupFromChannel(int ChanIndex) {
 #if APIVERSNUM >= 20301
+    LOCK_TIMERS_READ;
     LOCK_CHANNELS_READ;
     int GroupIndex = Channels->GetPrevGroup(ChanIndex);
 #else
@@ -216,6 +217,7 @@ int myOsdMenu::GetGroupFromChannel(int ChanIndex) {
 
 int myOsdMenu::GetLastGroupIndex(void) {
 #if APIVERSNUM >= 20301
+    LOCK_TIMERS_READ;
     LOCK_CHANNELS_READ;
     const cChannel *Channel = Channels->Last();
     return Channels->GetPrevGroup( Channel->Index() );
@@ -227,6 +229,7 @@ int myOsdMenu::GetLastGroupIndex(void) {
 
 int myOsdMenu::GetFirstGroupIndex(void) {
 #if APIVERSNUM >= 20301
+    LOCK_TIMERS_READ;
     LOCK_CHANNELS_READ;
     const cChannel *Channel = Channels->First();
     if( Channel->GroupSep() )
@@ -243,6 +246,7 @@ int myOsdMenu::GetFirstGroupIndex(void) {
 int myOsdMenu::GetFirstChannelOfGroup(int Group) {
     if( ChannelsHasGroup() == false ) { // no groups -> get First Channel
 #if APIVERSNUM >= 20301
+        LOCK_TIMERS_READ;
         LOCK_CHANNELS_READ;
         const cChannel *Channel;
         Channel = Channels->First();
@@ -264,6 +268,7 @@ int myOsdMenu::GetFirstChannelOfGroup(int Group) {
 
 int myOsdMenu::GetLastChannelOfGroup(int Group) {
 #if APIVERSNUM >= 20301
+    LOCK_TIMERS_READ;
     LOCK_CHANNELS_READ;
     int NextGroup = Channels->GetNextGroup( GetGroupIndex(Group) );
 #else
@@ -297,6 +302,7 @@ int myOsdMenu::GetLastChannelOfGroup(int Group) {
 
 int myOsdMenu::GetNextChannel(int ChanIndex) {
 #if APIVERSNUM >= 20301
+    LOCK_TIMERS_READ;
     LOCK_CHANNELS_READ;
     const cChannel *Channel;
     Channel = Channels->Get( Channels->GetNextNormal(ChanIndex) );
@@ -324,6 +330,7 @@ if( Channel == NULL )
 
 int myOsdMenu::GetPrevChannel(int ChanIndex) {
 #if APIVERSNUM >= 20301
+    LOCK_TIMERS_READ;
     LOCK_CHANNELS_READ;
     const cChannel *Channel;
     Channel = Channels->Get( Channels->GetPrevNormal(ChanIndex) );
@@ -373,6 +380,7 @@ bool myOsdMenu::isChannelInGroup(int ChanIndex, int Group) {
 
 bool myOsdMenu::ChannelsHasGroup(void) {
 #if APIVERSNUM >= 20301
+    LOCK_TIMERS_READ;
     LOCK_CHANNELS_READ;
     const cChannel *Channel = Channels->First();
     if( Channel->GroupSep() )
@@ -390,6 +398,7 @@ bool myOsdMenu::ChannelsHasGroup(void) {
 
 bool myOsdMenu::FirstChannelsHasGroup(void) {
 #if APIVERSNUM >= 20301
+    LOCK_TIMERS_READ;
     LOCK_CHANNELS_READ;
     const cChannel *Channel = Channels->First();
 #else
@@ -503,6 +512,7 @@ void myOsdMenu::LoadSchedules(int shift) {
 void myOsdMenu::SetMyTitle(void) {
     char *buffer = NULL;
 #if APIVERSNUM >= 20301
+    LOCK_TIMERS_READ;
     LOCK_CHANNELS_READ;
 #endif
     if( CurrentGroup == 0 && FirstChannelsHasGroup() == false ) {

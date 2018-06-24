@@ -69,6 +69,7 @@ class myMenuSetup : public cMenuSetupPage
             ProgressBarTexts.Append( strdup( tr("Percent")) );
             
             #if APIVERSNUM >= 20301
+                LOCK_TIMERS_READ;
                 LOCK_CHANNELS_READ;
                 for (const cChannel *Channel = Channels->First(); Channel; Channel = Channels->Next(Channel)) {
                     if( Channel->GroupSep() )
