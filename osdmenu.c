@@ -482,7 +482,11 @@ void myOsdMenu::LoadSchedules(int shift) {
             if( !isChannelInGroup( Channel->Index(), CurrentGroup ) )
                 continue;
 
+#if APIVERSNUM >= 20301
+            const cSchedule *Schedule = schedules->GetSchedule( Channel );
+#else
             const cSchedule *Schedule = schedules->GetSchedule( Channel->GetChannelID() );
+#endif
             if(Schedule) {
                 // event from now or any other date (next)
                 const cEvent *Event = next ? Schedule->GetEventAround(t) : Schedule->GetPresentEvent();
