@@ -58,7 +58,10 @@ myOsdMenu::myOsdMenu() : cOsdMenu("") {
 
     PageDown();
     cOsdItem *tItem = Get(Current());
-    ChannelsShown = atoi((const char *)tItem->Text());
+    if (!tItem || !tItem->Text()) {
+        ChannelsShown = 1;
+    } else
+        ChannelsShown = atoi(tItem->Text());
     Clear();
     //ChannelsShown = Skins.Current()->DisplayMenu()->MaxItems();
 
@@ -164,10 +167,16 @@ myOsdMenu::myOsdMenu() : cOsdMenu("") {
     int CurrentChannelNr = cDevice::CurrentChannel();
 #if APIVERSNUM >= 20301
     const cChannel *CurrentChannel = Channels->GetByNumber(CurrentChannelNr);
+    if (!CurrentChannel)
+        CurrentChannel = Channels->First();
 #else
     cChannel *CurrentChannel = Channels.GetByNumber(CurrentChannelNr);
 #endif
     // is Current Channel is filtered?
+    if (!CurrentChannel) {
+        esyslog("neutrinoepg: no current channel found");
+        return;
+    }
     bool isRadio = ( (!CurrentChannel->Vpid()) && (CurrentChannel->Apid(0)) ) ? true : false;
     if( (isRadio && hideradiochannels) || (CurrentChannel->Ca() && hideencryptedchannels) ) {
 #if APIVERSNUM >= 20301
@@ -383,6 +392,8 @@ bool myOsdMenu::ChannelsHasGroup(void) {
     LOCK_TIMERS_READ;
     LOCK_CHANNELS_READ;
     const cChannel *Channel = Channels->First();
+    if (!Channel)
+        return false;
     if( Channel->GroupSep() )
         return true;
     int Group = Channels->GetNextGroup(Channel->Index());
@@ -404,6 +415,8 @@ bool myOsdMenu::FirstChannelsHasGroup(void) {
 #else
     cChannel *Channel = Channels.First();
 #endif
+    if (!Channel)
+        return false;
     if( Channel->GroupSep() )
         return true;
     return false;
@@ -561,7 +574,7 @@ void myOsdMenu::SetMyTitle(void) {
 
 eOSState myOsdMenu::Switch() {
     myOsdItem *item = (myOsdItem *)Get(Current());
-    if(item) {
+    if(item && Count() > 0) {
         const cChannel *channel = item->channel;
         if(channel && cDevice::PrimaryDevice()->SwitchChannel(channel, true) )
             return keeposd ? osContinue : osEnd;
